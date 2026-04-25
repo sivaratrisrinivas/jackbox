@@ -290,14 +290,14 @@ Project scaffold + scripts
 **Description:** Wire the live Firecrawl client behind the existing adapter interface so Jackbox can use real prospect URLs when credentials are present, while falling back to fixture mode for tests and demos.
 
 **Acceptance criteria:**
-- [ ] Live Firecrawl usage is isolated behind a small adapter boundary.
-- [ ] Missing credentials, crawl timeouts, or adapter failures fall back to a readable error or fixture mode without crashing the UI.
-- [ ] Integration tests mock the live adapter without depending on the network.
+- [x] Live Firecrawl usage is isolated behind a small adapter boundary.
+- [x] Missing credentials, crawl timeouts, or adapter failures fall back to a readable error or fixture mode without crashing the UI.
+- [x] Integration tests mock the live adapter without depending on the network.
 
 **Verification:**
-- [ ] Tests pass: `npm run test -- --runInBand tests/integration/firecrawl-adapter.test.ts`
-- [ ] Typecheck succeeds: `npm run typecheck`
-- [ ] Manual check: toggling fixture/live mode changes data source without changing the user flow
+- [x] Tests pass: `npm run test:run -- tests/integration/firecrawl-adapter.test.ts`
+- [x] Typecheck succeeds: `npm run typecheck`
+- [x] Manual check: toggling fixture/live mode changes data source without changing the user flow
 
 **Dependencies:** Tasks 4, 5, 7, 8, 9
 

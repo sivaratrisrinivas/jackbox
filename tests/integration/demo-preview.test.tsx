@@ -21,6 +21,7 @@ describe("DemoPackage preview rendering", () => {
       screen.getByText(/Acme Cloud is ready for a tailored Firecrawl walkthrough/i),
     ).toBeTruthy();
     expect(screen.getAllByText(/Docs intelligence/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Fixture preview/i)).toBeTruthy();
     expect(
       screen.getByText(/Citation-backed answers from the prospect's own docs/i),
     ).toBeTruthy();

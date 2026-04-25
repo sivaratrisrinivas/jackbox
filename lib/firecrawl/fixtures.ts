@@ -19,6 +19,12 @@ export const ProspectFixtureSchema = z.object({
     .array(FixturePageSchema)
     .min(1, "Fixture must include at least one page."),
   notes: z.array(z.string().trim().min(1)).default([]),
+  dataSource: z.enum(["fixture", "live"]).optional(),
+  fallbackReason: z
+    .string()
+    .trim()
+    .min(1, "Fallback reason must not be empty.")
+    .optional(),
 });
 
 export type ProspectFixture = z.infer<typeof ProspectFixtureSchema>;

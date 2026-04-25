@@ -66,6 +66,8 @@ function buildFallbackPreview(
     sourcePageCount: fixture.pages.length,
     primarySourceTitle: fixture.pages[0]?.title,
     painPoint: input.painPoint,
+    dataSource: fixture.dataSource ?? "fixture",
+    fallbackReason: fixture.fallbackReason,
   };
 }
 
@@ -117,7 +119,11 @@ export async function generateDemoPackage(
       whyThisMatters: `${companyName} can see a tailored Firecrawl path from "${parsedInput.painPoint}" to a bounded, source-backed demo package.`,
       architectureNote: TEMPLATE_ARCHITECTURE_NOTES[routedPlan.templateId],
     },
-    preview: templateResult.preview,
+    preview: {
+      ...templateResult.preview,
+      dataSource: fixture.dataSource ?? "fixture",
+      fallbackReason: fixture.fallbackReason,
+    },
     provenance: buildProvenance(fixture),
     creditEstimate,
     files: templateResult.files,

@@ -6,12 +6,13 @@ package with a routed template, rationale, provenance, and exportable artifacts.
 
 ## Current Status
 
-The repo is now through the Account Research template slice. A founder can
-submit a fixture-backed prospect brief, receive a normalized package manifest,
-and see source-linked docs answers, tracked-page monitoring summaries, or a
-compact account research brief with grounded team context, provenance,
-architecture notes, credit estimates, and template-specific package files
-rendered from the same contract.
+The repo is now through Task 10. A founder can submit a prospect brief, receive
+a normalized package manifest, and see source-linked docs answers, tracked-page
+monitoring summaries, or a compact account research brief with grounded team
+context, provenance, architecture notes, credit estimates, and template-specific
+package files rendered from the same contract. Jackbox now supports a bounded
+live Firecrawl adapter when credentials are present and cleanly falls back to
+fixtures when live mode is unavailable or fails.
 
 Completed:
 - Task 1: bootstrap the Next.js app shell
@@ -23,9 +24,10 @@ Completed:
 - Task 7: implement the Docs Intelligence template slice
 - Task 8: implement the Change Monitor template slice
 - Task 9: implement the Account Research template slice
+- Task 10: add the Firecrawl live adapter with bounded fallback behavior
 
 Next in sequence:
-- Task 10: add the Firecrawl live adapter with bounded fallback behavior
+- Task 11: implement ZIP export and package assembly
 
 ## Stack
 
@@ -52,7 +54,9 @@ Next in sequence:
 - Docs Intelligence generator that returns source-linked answers and exportable README/JSON artifacts
 - Change Monitor generator that returns tracked-page summaries, alert-ready monitoring value, and exportable README/JSON artifacts
 - Account Research generator that returns concise pricing, product, customer, and hiring signals with a pre-call brief and exportable README/JSON artifacts
-- Unit and integration coverage for contract validation, fixture parsing, routing, credit estimates, route orchestration, the intake form flow, the demo preview renderer, and the Docs Intelligence, Change Monitor, and Account Research slices
+- Firecrawl mode resolution with `auto`, `fixture`, and `live` behavior plus a bounded live crawl adapter
+- Fixture fallback messaging in the result surface so the active data source is visible to the founder
+- Unit and integration coverage for contract validation, fixture parsing, routing, credit estimates, route orchestration, the intake form flow, the demo preview renderer, the live adapter, and the Docs Intelligence, Change Monitor, and Account Research slices
 
 ## Commands
 
@@ -65,17 +69,42 @@ npm run typecheck
 npm run test
 ```
 
+## Firecrawl Modes
+
+Jackbox supports three server-side Firecrawl modes through
+`JACKBOX_FIRECRAWL_MODE`:
+
+- `auto` (default): use live Firecrawl when `FIRECRAWL_API_KEY` is present,
+  otherwise fall back to fixtures
+- `fixture`: always use deterministic fixture data
+- `live`: require `FIRECRAWL_API_KEY` and fail clearly if live crawling is not
+  available
+
+Example WSL session:
+
+```bash
+export JACKBOX_FIRECRAWL_MODE=fixture
+npm run dev
+```
+
+```bash
+export FIRECRAWL_API_KEY=your_key_here
+export JACKBOX_FIRECRAWL_MODE=live
+npm run dev
+```
+
 For a targeted verification run:
 
 ```bash
 npm run test:run -- tests/integration/docs-intelligence.test.ts tests/integration/demo-preview.test.tsx
 npm run test:run -- tests/integration/change-monitor.test.ts
 npm run test:run -- tests/integration/account-research.test.ts
+npm run test:run -- tests/integration/firecrawl-adapter.test.ts
 ```
 
 ## Verification
 
-The current Task 9 slice passes:
+The current Task 10 slice passes:
 
 - `npm run build`
 - `npm run lint`
@@ -89,4 +118,5 @@ The current Task 9 slice passes:
 - The current UI calls `/api/generate` and renders the returned `DemoPackage` directly in the result shell
 - Shared preview components live under `components/demo-preview.tsx`, `components/result-summary.tsx`, and `components/source-provenance.tsx`
 - The Account Research preview adds a dedicated motion-rich research surface at `components/account-research-preview.tsx`
-- Template-specific vertical slices are complete through Task 9; the next step is the live Firecrawl adapter
+- The Firecrawl adapter lives under `lib/firecrawl/` and exposes both live and fixture-backed loading paths
+- Template-specific vertical slices and the live adapter are complete through Task 10; the next step is ZIP export

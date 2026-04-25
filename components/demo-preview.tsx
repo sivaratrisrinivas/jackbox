@@ -194,6 +194,9 @@ export function DemoPreview({ demoPackage }: DemoPreviewProps) {
   const primarySourceTitle =
     getPreviewString(demoPackage, "primarySourceTitle") ?? "Primary source";
   const sourcePageCount = getPreviewNumber(demoPackage, "sourcePageCount");
+  const dataSource = getPreviewString(demoPackage, "dataSource");
+  const sourceDescriptor =
+    dataSource === "live" ? "live public pages" : "fixture-backed public pages";
   const docsAnswers = getDocsAnswers(demoPackage);
   const monitorItems = getChangeMonitorItems(demoPackage);
   const accountResearch = getAccountResearchData(demoPackage);
@@ -229,7 +232,7 @@ export function DemoPreview({ demoPackage }: DemoPreviewProps) {
             {companyName} starts from <span className="text-white">{primarySourceTitle}</span>
             {sourcePageCount === null
               ? "."
-              : ` with ${sourcePageCount} fixture-backed public pages available for the preview.`}
+              : ` with ${sourcePageCount} ${sourceDescriptor} available for the preview.`}
           </p>
         </div>
 
