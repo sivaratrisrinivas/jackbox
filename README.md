@@ -6,11 +6,12 @@ package with a routed template, rationale, provenance, and exportable artifacts.
 
 ## Current Status
 
-The repo is now through the Change Monitor template slice. A founder can
+The repo is now through the Account Research template slice. A founder can
 submit a fixture-backed prospect brief, receive a normalized package manifest,
-and see either source-linked docs answers or tracked-page monitoring summaries,
-provenance, architecture notes, credit estimates, and template-specific package
-files rendered from the same contract.
+and see source-linked docs answers, tracked-page monitoring summaries, or a
+compact account research brief with grounded team context, provenance,
+architecture notes, credit estimates, and template-specific package files
+rendered from the same contract.
 
 Completed:
 - Task 1: bootstrap the Next.js app shell
@@ -21,9 +22,10 @@ Completed:
 - Task 6: render the shared preview and result summary from `DemoPackage`
 - Task 7: implement the Docs Intelligence template slice
 - Task 8: implement the Change Monitor template slice
+- Task 9: implement the Account Research template slice
 
 Next in sequence:
-- Task 9: implement the Account Research template slice
+- Task 10: add the Firecrawl live adapter with bounded fallback behavior
 
 ## Stack
 
@@ -49,7 +51,8 @@ Next in sequence:
 - Shared result rendering for summary metadata, template preview content, provenance links, architecture notes, credit estimates, and package files
 - Docs Intelligence generator that returns source-linked answers and exportable README/JSON artifacts
 - Change Monitor generator that returns tracked-page summaries, alert-ready monitoring value, and exportable README/JSON artifacts
-- Unit and integration coverage for contract validation, fixture parsing, routing, credit estimates, route orchestration, the intake form flow, the demo preview renderer, and the Docs Intelligence and Change Monitor slices
+- Account Research generator that returns concise pricing, product, customer, and hiring signals with a pre-call brief and exportable README/JSON artifacts
+- Unit and integration coverage for contract validation, fixture parsing, routing, credit estimates, route orchestration, the intake form flow, the demo preview renderer, and the Docs Intelligence, Change Monitor, and Account Research slices
 
 ## Commands
 
@@ -67,11 +70,12 @@ For a targeted verification run:
 ```bash
 npm run test:run -- tests/integration/docs-intelligence.test.ts tests/integration/demo-preview.test.tsx
 npm run test:run -- tests/integration/change-monitor.test.ts
+npm run test:run -- tests/integration/account-research.test.ts
 ```
 
 ## Verification
 
-The current Task 8 slice passes:
+The current Task 9 slice passes:
 
 - `npm run build`
 - `npm run lint`
@@ -84,4 +88,5 @@ The current Task 8 slice passes:
 - Shared validation and manifest contracts live under `lib/`
 - The current UI calls `/api/generate` and renders the returned `DemoPackage` directly in the result shell
 - Shared preview components live under `components/demo-preview.tsx`, `components/result-summary.tsx`, and `components/source-provenance.tsx`
-- Template-specific vertical slices continue next with Account Research
+- The Account Research preview adds a dedicated motion-rich research surface at `components/account-research-preview.tsx`
+- Template-specific vertical slices are complete through Task 9; the next step is the live Firecrawl adapter

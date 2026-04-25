@@ -10,6 +10,7 @@ import {
   type DemoFile,
   type DemoSource,
 } from "@/lib/generation/demo-package";
+import { generateAccountResearchTemplate } from "@/lib/generation/templates/account-research";
 import { generateChangeMonitorTemplate } from "@/lib/generation/templates/change-monitor";
 import { generateDocsIntelligenceTemplate } from "@/lib/generation/templates/docs-intelligence";
 import { routeProspect } from "@/lib/router/route-prospect";
@@ -98,6 +99,8 @@ export async function generateDemoPackage(
       ? generateDocsIntelligenceTemplate(parsedInput, fixture)
       : routedPlan.templateId === "change-monitor"
         ? generateChangeMonitorTemplate(parsedInput, fixture)
+        : routedPlan.templateId === "account-research"
+          ? generateAccountResearchTemplate(parsedInput, fixture)
         : {
             preview: buildFallbackPreview(parsedInput, fixture, companyName),
             files: buildFallbackFiles(),

@@ -1,4 +1,8 @@
 import type { DemoPackage } from "@/lib/generation/demo-package";
+import {
+  AccountResearchPreview,
+  type AccountResearchSignalView,
+} from "@/components/account-research-preview";
 
 const TEMPLATE_NAMES: Record<DemoPackage["templateId"], string> = {
   "docs-intelligence": "Docs intelligence",
@@ -21,6 +25,13 @@ interface ChangeMonitorItem {
   currentState: string;
   detectedChange: string;
   monitoringValue: string;
+}
+
+interface AccountResearchData {
+  executiveSummary: string;
+  teamWhyItMatters: string;
+  discoveryAngles: string[];
+  signals: AccountResearchSignalView[];
 }
 
 function getPreviewString(demoPackage: DemoPackage, key: string) {
@@ -113,6 +124,67 @@ function getChangeMonitorItems(demoPackage: DemoPackage): ChangeMonitorItem[] {
   });
 }
 
+function getStringArray(demoPackage: DemoPackage, key: string) {
+  const value = demoPackage.preview[key];
+
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function getAccountResearchData(demoPackage: DemoPackage): AccountResearchData | null {
+  const executiveSummary = getPreviewString(demoPackage, "executiveSummary");
+  const teamWhyItMatters = getPreviewString(demoPackage, "teamWhyItMatters");
+  const discoveryAngles = getStringArray(demoPackage, "discoveryAngles");
+  const value = demoPackage.preview.signals;
+
+  if (!executiveSummary || !teamWhyItMatters || !Array.isArray(value)) {
+    return null;
+  }
+
+  const signals = value.flatMap((signal: unknown) => {
+    if (
+      typeof signal !== "object" ||
+      signal === null ||
+      !("label" in signal) ||
+      !("sourceLabel" in signal) ||
+      !("sourceUrl" in signal) ||
+      !("evidence" in signal) ||
+      !("insight" in signal) ||
+      typeof signal.label !== "string" ||
+      typeof signal.sourceLabel !== "string" ||
+      typeof signal.sourceUrl !== "string" ||
+      typeof signal.evidence !== "string" ||
+      typeof signal.insight !== "string"
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        label: signal.label,
+        sourceLabel: signal.sourceLabel,
+        sourceUrl: signal.sourceUrl,
+        evidence: signal.evidence,
+        insight: signal.insight,
+      },
+    ];
+  });
+
+  if (signals.length === 0) {
+    return null;
+  }
+
+  return {
+    executiveSummary,
+    teamWhyItMatters,
+    discoveryAngles,
+    signals,
+  };
+}
+
 export interface DemoPreviewProps {
   demoPackage: DemoPackage;
 }
@@ -124,6 +196,7 @@ export function DemoPreview({ demoPackage }: DemoPreviewProps) {
   const sourcePageCount = getPreviewNumber(demoPackage, "sourcePageCount");
   const docsAnswers = getDocsAnswers(demoPackage);
   const monitorItems = getChangeMonitorItems(demoPackage);
+  const accountResearch = getAccountResearchData(demoPackage);
 
   return (
     <article className="group overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/35">
@@ -250,6 +323,15 @@ export function DemoPreview({ demoPackage }: DemoPreviewProps) {
               </article>
             ))}
           </div>
+        ) : null}
+
+        {accountResearch ? (
+          <AccountResearchPreview
+            executiveSummary={accountResearch.executiveSummary}
+            teamWhyItMatters={accountResearch.teamWhyItMatters}
+            discoveryAngles={accountResearch.discoveryAngles}
+            signals={accountResearch.signals}
+          />
         ) : null}
       </div>
     </article>

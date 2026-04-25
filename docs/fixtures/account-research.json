@@ -1,0 +1,42 @@
+{
+  "fixtureId": "account-research",
+  "company": {
+    "name": "Northstar Labs",
+    "website": "https://northstar.example.com"
+  },
+  "pages": [
+    {
+      "url": "https://northstar.example.com/pricing",
+      "title": "Pricing",
+      "markdown": "# Pricing\n\nNorthstar prices by active accounts, intent signal volume, and rep seats so revenue teams can start with a lean pilot and expand as coverage grows.",
+      "pageType": "pricing"
+    },
+    {
+      "url": "https://northstar.example.com/product",
+      "title": "Product",
+      "markdown": "# Product\n\nThe workspace combines ICP filters, stakeholder timelines, and recommended talking points into one shared account view for every seller.",
+      "pageType": "product"
+    },
+    {
+      "url": "https://northstar.example.com/customers",
+      "title": "Customers",
+      "markdown": "# Customers\n\nRevenue teams use Northstar to cut research time before discovery calls and keep qualification notes current across the pod.",
+      "pageType": "customers"
+    },
+    {
+      "url": "https://northstar.example.com/jobs/account-executive",
+      "title": "Careers",
+      "markdown": "# Careers\n\nNorthstar is hiring account executives and solutions consultants to support enterprise expansion and more complex multi-team buying cycles.",
+      "pageType": "jobs"
+    },
+    {
+      "url": "https://northstar.example.com/",
+      "title": "Platform Overview",
+      "markdown": "# Platform Overview\n\nNorthstar helps revenue teams qualify product-led accounts with better account context before every live conversation.",
+      "pageType": "home"
+    }
+  ],
+  "notes": [
+    "Research-oriented prospect fixture for the Account Research template slice."
+  ]
+}

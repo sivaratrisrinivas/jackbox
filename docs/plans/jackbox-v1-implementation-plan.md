@@ -258,14 +258,14 @@ Project scaffold + scripts
 **Description:** Add the research-oriented generator slice that produces a compact prospect brief from pricing, jobs, docs, and product pages for sales conversations.
 
 **Acceptance criteria:**
-- [ ] A research-oriented fixture produces the Account Research template with concise account insights.
-- [ ] The preview includes a short "why this matters to your team" note grounded in source data.
-- [ ] Integration tests cover the research slice end to end.
+- [x] A research-oriented fixture produces the Account Research template with concise account insights.
+- [x] The preview includes a short "why this matters to your team" note grounded in source data.
+- [x] Integration tests cover the research slice end to end.
 
 **Verification:**
-- [ ] Tests pass: `npm run test -- --runInBand tests/integration/account-research.test.ts`
-- [ ] Typecheck succeeds: `npm run typecheck`
-- [ ] Manual check: the output feels like a tailored pre-sales brief, not a generic summary
+- [x] Tests pass: `npm run test:run -- tests/integration/account-research.test.ts`
+- [x] Typecheck succeeds: `npm run typecheck`
+- [x] Manual check: the output feels like a tailored pre-sales brief, not a generic summary
 
 **Dependencies:** Tasks 5, 6
 
@@ -279,9 +279,9 @@ Project scaffold + scripts
 **Estimated scope:** Medium
 
 ### Checkpoint: After Phase 3
-- [ ] All three templates generate coherent outputs from seeded fixtures
-- [ ] The shared UI renders each template without special-case page logic
-- [ ] Template choice and preview quality are strong enough for an internal live demo
+- [x] All three templates generate coherent outputs from seeded fixtures
+- [x] The shared UI renders each template without special-case page logic
+- [x] Template choice and preview quality are strong enough for an internal live demo
 
 ### Phase 4: Integration and Polish
 
