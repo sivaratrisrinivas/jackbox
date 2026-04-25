@@ -6,16 +6,16 @@ package with a routed template, rationale, provenance, and exportable artifacts.
 
 ## Current Status
 
-The repo is now through the founder-facing intake and routing preview slices.
+The repo is now through the fixture-backed generation orchestration slice.
 
 Completed:
 - Task 1: bootstrap the Next.js app shell
 - Task 2: define core contracts and fixture loading
 - Task 3: build the intake form and stubbed result shell
 - Task 4: implement routing, crawl target selection, and credit estimates
+- Task 5: build the generation orchestration route
 
 Next in sequence:
-- Task 5: build the generation orchestration route
 - Task 6: render the shared preview from `DemoPackage`
 
 ## Stack
@@ -38,6 +38,8 @@ Next in sequence:
 - Client-side prospect intake form with inline validation and routed loading, success, and error states
 - Deterministic template routing, bounded crawl target selection, and readable credit estimates
 - Unit coverage for contract validation, fixture parsing, routing, credit estimates, and the intake form flow
+- `/api/generate` route that returns a normalized fixture-backed `DemoPackage`
+- Structured route errors that the intake UI can render cleanly
 
 ## Commands
 
@@ -58,15 +60,16 @@ npm run test:run -- tests/unit/router.test.ts tests/unit/estimate-credits.test.t
 
 ## Verification
 
-The current Task 4 slice passes:
+The current Task 5 slice passes:
 
 - `npm run build`
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:run -- tests/unit/router.test.ts tests/unit/estimate-credits.test.ts tests/unit/prospect-form.test.tsx`
+- `npm run test:run -- tests/integration/generate-route.test.ts tests/unit/prospect-form.test.tsx`
 
 ## Repository Notes
 
 - Fixture files live under `docs/fixtures/`
 - Shared validation and manifest contracts live under `lib/`
-- The current UI previews routing, estimates, and crawl targets locally; generated server packages land next
+- The current UI calls `/api/generate` and adapts the returned `DemoPackage` into the existing result shell
+- Shared preview rendering from the manifest lands next in Task 6

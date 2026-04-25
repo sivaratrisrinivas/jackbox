@@ -23,25 +23,25 @@ const STATUS_COPY: Record<
     eyebrow: "Generation In Progress",
     title: "Routing the founder brief",
     description:
-      "The client preview is scoring the brief, selecting approved public targets, and estimating the package cost.",
+      "The server route is validating the brief, loading fixture-backed prospect data, and shaping the package manifest.",
     accent: "from-sky-400/30 via-sky-300/10 to-transparent",
     marker: (
       <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-sky-300" />
     ),
   },
   success: {
-    eyebrow: "Result Shell",
-    title: "Routed preview ready",
+    eyebrow: "Package Manifest",
+    title: "Demo package ready",
     description:
-      "The intake is validated and the result area now shows the deterministic plan the server route can reuse.",
+      "The intake is validated and the result area now reflects a normalized DemoPackage response.",
     accent: "from-emerald-400/30 via-emerald-300/10 to-transparent",
     marker: <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />,
   },
   error: {
     eyebrow: "Fallback State",
-    title: "The preview hit a deliberate failure path",
+    title: "The route returned a structured error",
     description:
-      "This state is here so we can design readable recovery before the real orchestration route exists.",
+      "This state keeps request failures readable while the orchestration route stays strict about invalid input.",
     accent: "from-rose-400/30 via-rose-300/10 to-transparent",
     marker: <span className="h-2.5 w-2.5 rounded-full bg-rose-300" />,
   },

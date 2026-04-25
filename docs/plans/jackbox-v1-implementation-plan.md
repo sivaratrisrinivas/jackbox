@@ -151,14 +151,14 @@ Project scaffold + scripts
 **Description:** Create the server-side orchestration path that validates input, loads prospect data through the adapter interface, runs routing, and returns a normalized `DemoPackage` response for the UI.
 
 **Acceptance criteria:**
-- [ ] A generation route accepts valid input and returns a typed response shaped as `DemoPackage`.
-- [ ] The route uses fixture-backed prospect data so the flow works without live Firecrawl access.
-- [ ] Invalid requests return structured errors the UI can render cleanly.
+- [x] A generation route accepts valid input and returns a typed response shaped as `DemoPackage`.
+- [x] The route uses fixture-backed prospect data so the flow works without live Firecrawl access.
+- [x] Invalid requests return structured errors the UI can render cleanly.
 
 **Verification:**
-- [ ] Tests pass: `npm run test -- --runInBand tests/integration/generate-route.test.ts`
-- [ ] Build succeeds: `npm run build`
-- [ ] Manual check: the intake UI can call the route and receive a typed stub package
+- [x] Tests pass: `npm run test:run -- tests/integration/generate-route.test.ts tests/unit/prospect-form.test.tsx`
+- [x] Build succeeds: `npm run build`
+- [x] Manual check: the intake UI can call the route and receive a typed stub package
 
 **Dependencies:** Tasks 2, 3, 4
 

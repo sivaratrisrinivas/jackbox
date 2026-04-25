@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { z } from "zod";
 import { GenerationStatus } from "@/components/generation-status";
 import {
@@ -8,8 +8,10 @@ import {
   type GenerationStatusType,
   type StubGenerationResult,
 } from "@/components/result-shell";
-import { estimateCredits } from "@/lib/estimates/estimate-credits";
-import { routeProspect } from "@/lib/router/route-prospect";
+import {
+  DemoPackageSchema,
+  type DemoPackage,
+} from "@/lib/generation/demo-package";
 import {
   ProspectInputSchema,
   type ProspectInput,
@@ -21,8 +23,6 @@ const INITIAL_VALUES: ProspectInput = {
   companyUrl: "",
   painPoint: "",
 };
-
-const STUB_DELAY_MS = 900;
 
 function getFieldErrors(error: z.ZodError<ProspectInput>): FieldErrors {
   const flattened = error.flatten().fieldErrors;
@@ -43,25 +43,37 @@ function humanizeHost(companyUrl: string) {
   }
 }
 
-function buildStubResult(input: ProspectInput): StubGenerationResult {
-  const companyName = humanizeHost(input.companyUrl);
-  const routedPlan = routeProspect(input);
-  const creditEstimate = estimateCredits(routedPlan);
+function getRouteErrorMessage(payload: unknown) {
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "message" in payload &&
+    typeof payload.message === "string"
+  ) {
+    return payload.message;
+  }
+
+  return "The generation route returned an error the preview could not read.";
+}
+
+function demoPackageToResult(demoPackage: DemoPackage): StubGenerationResult {
+  const companyName =
+    typeof demoPackage.preview.companyName === "string"
+      ? demoPackage.preview.companyName
+      : humanizeHost(demoPackage.input.companyUrl);
 
   return {
     companyName,
-    companyUrl: input.companyUrl,
-    painPoint: input.painPoint,
-    routedPlan,
-    creditEstimate,
-    summary:
-      "The brief now resolves into a deterministic template choice, bounded public crawl targets, and a rough credit estimate the UI can explain before full package generation lands.",
-    nextMove:
-      "The next slice can call this same routing plan from the server route and return a normalized demo package.",
+    companyUrl: demoPackage.input.companyUrl,
+    painPoint: demoPackage.input.painPoint,
+    routedPlan: demoPackage.routedPlan,
+    creditEstimate: demoPackage.creditEstimate,
+    summary: demoPackage.summary.whyThisMatters,
+    nextMove: demoPackage.summary.architectureNote,
     outputArtifacts: [
-      `${companyName} routed to ${routedPlan.templateId.replace(/-/g, " ")} with founder-readable rationale.`,
-      `${routedPlan.crawlTargets.length} public crawl targets selected inside the approved site surface.`,
-      `${creditEstimate.totalCredits} estimated credits broken into crawl, extraction, and package metadata.`,
+      `${companyName} generated package ${demoPackage.id}.`,
+      `${demoPackage.provenance.length} fixture-backed source pages preserved as provenance.`,
+      `${demoPackage.files.length} package files prepared for the export slice.`,
     ],
   };
 }
@@ -69,7 +81,6 @@ function buildStubResult(input: ProspectInput): StubGenerationResult {
 export function ProspectForm() {
   const companyUrlId = useId();
   const painPointId = useId();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [values, setValues] = useState(INITIAL_VALUES);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -93,14 +104,6 @@ export function ProspectForm() {
     return "Ready";
   }, [status]);
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
-
   function updateField(field: keyof ProspectInput, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({
@@ -109,14 +112,7 @@ export function ProspectForm() {
     }));
   }
 
-  function clearPendingSubmission() {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  }
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nativeEvent = event.nativeEvent as SubmitEvent;
     const submitter = nativeEvent.submitter;
@@ -131,24 +127,46 @@ export function ProspectForm() {
       return;
     }
 
-    clearPendingSubmission();
     setErrors({});
     setErrorMessage(null);
     setResult(null);
     setStatus("loading");
 
-    timeoutRef.current = setTimeout(() => {
-      if (submissionIntent === "error") {
+    const requestPayload =
+      submissionIntent === "error"
+        ? {
+            companyUrl: "not-a-url",
+            painPoint: "short",
+          }
+        : parsed.data;
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(requestPayload),
+      });
+      const payload: unknown = await response.json();
+
+      if (!response.ok) {
         setStatus("error");
-        setErrorMessage(
-          "The preview intentionally paused here so we can keep fallback copy readable before the server orchestration route exists.",
-        );
+        setErrorMessage(getRouteErrorMessage(payload));
         return;
       }
 
-      setResult(buildStubResult(parsed.data));
+      const demoPackage = DemoPackageSchema.parse(payload);
+      setResult(demoPackageToResult(demoPackage));
       setStatus("success");
-    }, STUB_DELAY_MS);
+    } catch (error) {
+      setStatus("error");
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "The generation route could not be reached.",
+      );
+    }
   }
 
   return (

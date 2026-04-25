@@ -1,10 +1,27 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { POST } from "@/app/api/generate/route";
 import { ProspectForm } from "@/components/prospect-form";
 
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
 });
+
+function mockGenerateRoute() {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+      POST(
+        new Request("http://localhost/api/generate", {
+          method: init?.method,
+          headers: init?.headers,
+          body: init?.body,
+        }),
+      ),
+    ),
+  );
+}
 
 describe("ProspectForm", () => {
   it("shows inline validation messages for invalid input", async () => {
@@ -17,6 +34,7 @@ describe("ProspectForm", () => {
   });
 
   it("renders the routed success shell for valid input", async () => {
+    mockGenerateRoute();
     render(<ProspectForm />);
 
     fireEvent.change(screen.getByLabelText(/company url/i), {
@@ -32,16 +50,17 @@ describe("ProspectForm", () => {
 
     expect(await screen.findByText(/routing the founder brief/i)).toBeTruthy();
     expect(
-      await screen.findByText(/routed preview ready/i, undefined, { timeout: 2000 }),
+      await screen.findByText(/demo package ready/i, undefined, { timeout: 2000 }),
     ).toBeTruthy();
     expect(
-      await screen.findByText(/Acme is ready for a tailored Firecrawl walkthrough/i),
+      await screen.findByText(/Acme Cloud is ready for a tailored Firecrawl walkthrough/i),
     ).toBeTruthy();
-    expect(await screen.findAllByText(/docs intelligence/i)).toHaveLength(2);
-    expect(await screen.findAllByText(/credit estimate/i)).toHaveLength(2);
+    expect(await screen.findByText(/docs intelligence/i)).toBeTruthy();
+    expect(await screen.findByText(/credit estimate/i)).toBeTruthy();
   });
 
   it("renders the fallback error shell when the error path is requested", async () => {
+    mockGenerateRoute();
     render(<ProspectForm />);
 
     fireEvent.change(screen.getByLabelText(/company url/i), {
@@ -57,12 +76,12 @@ describe("ProspectForm", () => {
 
     expect(await screen.findByText(/routing the founder brief/i)).toBeTruthy();
     expect(
-      await screen.findByText(/the preview hit a deliberate failure path/i, undefined, {
+      await screen.findByText(/the route returned a structured error/i, undefined, {
         timeout: 2000,
       }),
     ).toBeTruthy();
     expect(
-      await screen.findByText(/keep fallback copy readable before the server orchestration route exists/i),
+      await screen.findByText(/request validation failed/i),
     ).toBeTruthy();
   });
 });

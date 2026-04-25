@@ -58,3 +58,4 @@ export const DemoPackageSchema = z.object({
 
 export type DemoPackage = z.infer<typeof DemoPackageSchema>;
 export type CreditEstimate = z.infer<typeof CreditEstimateSchema>;
+export type DemoSource = z.infer<typeof DemoSourceSchema>;
