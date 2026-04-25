@@ -15,6 +15,14 @@ interface PreviewAnswer {
   }>;
 }
 
+interface ChangeMonitorItem {
+  pageTitle: string;
+  url: string;
+  currentState: string;
+  detectedChange: string;
+  monitoringValue: string;
+}
+
 function getPreviewString(demoPackage: DemoPackage, key: string) {
   const value = demoPackage.preview[key];
 
@@ -68,6 +76,43 @@ function getDocsAnswers(demoPackage: DemoPackage): PreviewAnswer[] {
   });
 }
 
+function getChangeMonitorItems(demoPackage: DemoPackage): ChangeMonitorItem[] {
+  const value = demoPackage.preview.trackedPages;
+
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item: unknown) => {
+    if (
+      typeof item !== "object" ||
+      item === null ||
+      !("pageTitle" in item) ||
+      !("url" in item) ||
+      !("currentState" in item) ||
+      !("detectedChange" in item) ||
+      !("monitoringValue" in item) ||
+      typeof item.pageTitle !== "string" ||
+      typeof item.url !== "string" ||
+      typeof item.currentState !== "string" ||
+      typeof item.detectedChange !== "string" ||
+      typeof item.monitoringValue !== "string"
+    ) {
+      return [];
+    }
+
+    return [
+      {
+        pageTitle: item.pageTitle,
+        url: item.url,
+        currentState: item.currentState,
+        detectedChange: item.detectedChange,
+        monitoringValue: item.monitoringValue,
+      },
+    ];
+  });
+}
+
 export interface DemoPreviewProps {
   demoPackage: DemoPackage;
 }
@@ -78,6 +123,7 @@ export function DemoPreview({ demoPackage }: DemoPreviewProps) {
     getPreviewString(demoPackage, "primarySourceTitle") ?? "Primary source";
   const sourcePageCount = getPreviewNumber(demoPackage, "sourcePageCount");
   const docsAnswers = getDocsAnswers(demoPackage);
+  const monitorItems = getChangeMonitorItems(demoPackage);
 
   return (
     <article className="group overflow-hidden rounded-[1.8rem] border border-white/10 bg-black/35">
@@ -146,6 +192,60 @@ export function DemoPreview({ demoPackage }: DemoPreviewProps) {
                       {citation.label}
                     </a>
                   ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : null}
+
+        {monitorItems.length > 0 ? (
+          <div className="mt-5 grid gap-3">
+            {monitorItems.map((item) => (
+              <article
+                key={item.url}
+                className="group/monitor overflow-hidden rounded-[1.25rem] border border-amber-100/10 bg-amber-200/[0.055] p-4 transition duration-500 hover:border-amber-100/25 hover:bg-amber-200/[0.085]"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h5 className="text-base font-semibold tracking-tight text-white">
+                      {item.pageTitle}
+                    </h5>
+                    <a
+                      href={item.url}
+                      className="mt-2 block break-words text-xs text-amber-100/75 transition hover:text-amber-50"
+                    >
+                      {item.url}
+                    </a>
+                  </div>
+                  <span className="rounded-full border border-amber-100/15 bg-black/25 px-3 py-1.5 text-xs text-amber-50">
+                    Monitoring value
+                  </span>
+                </div>
+                <div className="mt-4 grid gap-3 md:grid-cols-3">
+                  <div className="rounded-[1rem] border border-white/8 bg-black/25 p-3">
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/40">
+                      Current state
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-200">
+                      {item.currentState}
+                    </p>
+                  </div>
+                  <div className="rounded-[1rem] border border-white/8 bg-black/25 p-3">
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/40">
+                      Detected change
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-200">
+                      {item.detectedChange}
+                    </p>
+                  </div>
+                  <div className="rounded-[1rem] border border-white/8 bg-black/25 p-3">
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/40">
+                      Monitoring value
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-zinc-200">
+                      {item.monitoringValue}
+                    </p>
+                  </div>
                 </div>
               </article>
             ))}

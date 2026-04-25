@@ -10,6 +10,7 @@ import {
   type DemoFile,
   type DemoSource,
 } from "@/lib/generation/demo-package";
+import { generateChangeMonitorTemplate } from "@/lib/generation/templates/change-monitor";
 import { generateDocsIntelligenceTemplate } from "@/lib/generation/templates/docs-intelligence";
 import { routeProspect } from "@/lib/router/route-prospect";
 import { ProspectInputSchema, type ProspectInput } from "@/lib/validation/prospect";
@@ -95,10 +96,12 @@ export async function generateDemoPackage(
   const templateResult =
     routedPlan.templateId === "docs-intelligence"
       ? generateDocsIntelligenceTemplate(parsedInput, fixture)
-      : {
-          preview: buildFallbackPreview(parsedInput, fixture, companyName),
-          files: buildFallbackFiles(),
-        };
+      : routedPlan.templateId === "change-monitor"
+        ? generateChangeMonitorTemplate(parsedInput, fixture)
+        : {
+            preview: buildFallbackPreview(parsedInput, fixture, companyName),
+            files: buildFallbackFiles(),
+          };
 
   return DemoPackageSchema.parse({
     id: `demo_${slugify(companyName)}_${routedPlan.templateId}`,

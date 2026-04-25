@@ -233,14 +233,14 @@ Project scaffold + scripts
 **Description:** Add the monitoring-oriented generator slice that turns relevant pages into a change dashboard with tracked pages, change summaries, and alert-style outputs.
 
 **Acceptance criteria:**
-- [ ] A monitoring-oriented fixture produces the Change Monitor template with tracked-page summaries.
-- [ ] The preview clearly distinguishes current state, detected changes, and suggested monitoring value.
-- [ ] Integration tests cover the monitoring slice end to end.
+- [x] A monitoring-oriented fixture produces the Change Monitor template with tracked-page summaries.
+- [x] The preview clearly distinguishes current state, detected changes, and suggested monitoring value.
+- [x] Integration tests cover the monitoring slice end to end.
 
 **Verification:**
-- [ ] Tests pass: `npm run test -- --runInBand tests/integration/change-monitor.test.ts`
-- [ ] Build succeeds: `npm run build`
-- [ ] Manual check: the preview reads as monitoring intelligence, not generic research
+- [x] Tests pass: `npm run test:run -- tests/integration/change-monitor.test.ts`
+- [x] Build succeeds: `npm run build`
+- [x] Manual check: the preview reads as monitoring intelligence, not generic research
 
 **Dependencies:** Tasks 5, 6
 

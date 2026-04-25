@@ -1,0 +1,36 @@
+{
+  "fixtureId": "change-monitor",
+  "company": {
+    "name": "SignalForge",
+    "website": "https://signalforge.example.com"
+  },
+  "pages": [
+    {
+      "url": "https://signalforge.example.com/pricing",
+      "title": "Pricing",
+      "markdown": "# Pricing\n\nSignalForge packages market monitoring by tracked page volume, alert frequency, and analyst review seats.",
+      "pageType": "pricing"
+    },
+    {
+      "url": "https://signalforge.example.com/changelog",
+      "title": "Changelog",
+      "markdown": "# Changelog\n\nThe latest release adds launch alerts, competitor page snapshots, and weekly summary digests.",
+      "pageType": "changelog"
+    },
+    {
+      "url": "https://signalforge.example.com/product",
+      "title": "Product",
+      "markdown": "# Product\n\nTeams monitor pricing pages, release notes, and positioning changes from public market surfaces.",
+      "pageType": "product"
+    },
+    {
+      "url": "https://signalforge.example.com/blog/launch-alerts",
+      "title": "Launch Alerts",
+      "markdown": "# Launch Alerts\n\nSignalForge explains how product marketers catch messaging shifts before quarterly planning.",
+      "pageType": "blog"
+    }
+  ],
+  "notes": [
+    "Monitoring-oriented prospect fixture for the Change Monitor template slice."
+  ]
+}
