@@ -93,14 +93,14 @@ Project scaffold + scripts
 **Description:** Implement the founder-facing landing experience with URL and pain-point inputs, client validation, loading states, and a stubbed success panel so the core UI flow exists before real generation logic.
 
 **Acceptance criteria:**
-- [ ] The landing screen contains a single clear form for company URL and pain point.
-- [ ] Invalid input is blocked with inline validation messages.
-- [ ] A stubbed submit path shows loading, success, and error states in the results area.
+- [x] The landing screen contains a single clear form for company URL and pain point.
+- [x] Invalid input is blocked with inline validation messages.
+- [x] A stubbed submit path shows loading, success, and error states in the results area.
 
 **Verification:**
-- [ ] Build succeeds: `npm run build`
-- [ ] Tests pass: `npm run test -- --runInBand tests/unit/prospect-form.test.tsx`
-- [ ] Manual check: submitting valid input transitions through loading into a visible result shell
+- [x] Build succeeds: `npm run build`
+- [x] Tests pass: `npm run test:run -- tests/unit/prospect-form.test.tsx`
+- [x] Manual check: submitting valid input transitions through loading into a visible result shell
 
 **Dependencies:** Task 2
 
@@ -115,7 +115,7 @@ Project scaffold + scripts
 
 ### Checkpoint: After Phase 1
 - [x] The repo installs and builds cleanly
-- [ ] The founder intake flow is visible and usable with stubbed output
+- [x] The founder intake flow is visible and usable with stubbed output
 - [x] Core contracts exist, so later work can build against stable types
 - [ ] Review with human before wiring real generation logic
 
