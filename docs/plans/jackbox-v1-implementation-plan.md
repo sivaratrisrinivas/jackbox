@@ -208,14 +208,14 @@ Project scaffold + scripts
 **Description:** Add the first full demo generator slice for docs-heavy prospects, producing a question-answering style preview with citations and exportable template files.
 
 **Acceptance criteria:**
-- [ ] A docs-oriented fixture produces the Docs Intelligence template with source-linked answers.
-- [ ] The returned package contains template-specific preview data and exportable files metadata.
-- [ ] Integration tests cover the docs slice end to end from fixture input to rendered package.
+- [x] A docs-oriented fixture produces the Docs Intelligence template with source-linked answers.
+- [x] The returned package contains template-specific preview data and exportable files metadata.
+- [x] Integration tests cover the docs slice end to end from fixture input to rendered package.
 
 **Verification:**
-- [ ] Tests pass: `npm run test -- --runInBand tests/integration/docs-intelligence.test.ts`
-- [ ] Typecheck succeeds: `npm run typecheck`
-- [ ] Manual check: the preview feels like a credible Firecrawl-powered docs demo
+- [x] Tests pass: `npm run test:run -- tests/integration/docs-intelligence.test.ts`
+- [x] Typecheck succeeds: `npm run typecheck`
+- [x] Manual check: the preview feels like a credible Firecrawl-powered docs demo
 
 **Dependencies:** Tasks 5, 6
 

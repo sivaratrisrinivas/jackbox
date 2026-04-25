@@ -1,0 +1,30 @@
+{
+  "fixtureId": "docs-intelligence",
+  "company": {
+    "name": "Acme Cloud",
+    "website": "https://acme.example.com"
+  },
+  "pages": [
+    {
+      "url": "https://acme.example.com/docs/getting-started",
+      "title": "Getting Started",
+      "markdown": "# Getting Started\n\nAcme Cloud helps teams ship internal tools from one shared workspace with documented setup paths for admins and builders.",
+      "pageType": "docs"
+    },
+    {
+      "url": "https://acme.example.com/docs/answers",
+      "title": "Answer Workflows",
+      "markdown": "# Answer Workflows\n\nSupport teams can cite source pages while resolving product questions from the latest documentation.",
+      "pageType": "docs"
+    },
+    {
+      "url": "https://acme.example.com/pricing",
+      "title": "Pricing",
+      "markdown": "# Pricing\n\nPlans scale by workspace size and automation volume.",
+      "pageType": "pricing"
+    }
+  ],
+  "notes": [
+    "Dedicated docs-heavy prospect fixture for the Docs Intelligence template slice."
+  ]
+}

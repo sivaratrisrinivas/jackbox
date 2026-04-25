@@ -7,8 +7,10 @@ import {
 import {
   DemoPackageSchema,
   type DemoPackage,
+  type DemoFile,
   type DemoSource,
 } from "@/lib/generation/demo-package";
+import { generateDocsIntelligenceTemplate } from "@/lib/generation/templates/docs-intelligence";
 import { routeProspect } from "@/lib/router/route-prospect";
 import { ProspectInputSchema, type ProspectInput } from "@/lib/validation/prospect";
 
@@ -51,6 +53,35 @@ function buildProvenance(fixture: ProspectFixture): DemoSource[] {
   }));
 }
 
+function buildFallbackPreview(
+  input: ProspectInput,
+  fixture: ProspectFixture,
+  companyName: string,
+) {
+  return {
+    companyName,
+    fixtureId: fixture.fixtureId,
+    sourcePageCount: fixture.pages.length,
+    primarySourceTitle: fixture.pages[0]?.title,
+    painPoint: input.painPoint,
+  };
+}
+
+function buildFallbackFiles(): DemoFile[] {
+  return [
+    {
+      path: "README.md",
+      description: "Founder-facing package overview with routing rationale and source notes.",
+      mediaType: "text/markdown",
+    },
+    {
+      path: "manifest.json",
+      description: "Structured DemoPackage metadata for preview rendering and export.",
+      mediaType: "application/json",
+    },
+  ];
+}
+
 export async function generateDemoPackage(
   input: ProspectInput,
   dataLoader: ProspectDataLoader = createProspectDataLoader(),
@@ -61,6 +92,13 @@ export async function generateDemoPackage(
   const creditEstimate = estimateCredits(routedPlan);
   const companyName = fixture.company.name || humanizeHost(parsedInput.companyUrl);
   const now = new Date().toISOString();
+  const templateResult =
+    routedPlan.templateId === "docs-intelligence"
+      ? generateDocsIntelligenceTemplate(parsedInput, fixture)
+      : {
+          preview: buildFallbackPreview(parsedInput, fixture, companyName),
+          files: buildFallbackFiles(),
+        };
 
   return DemoPackageSchema.parse({
     id: `demo_${slugify(companyName)}_${routedPlan.templateId}`,
@@ -73,26 +111,9 @@ export async function generateDemoPackage(
       whyThisMatters: `${companyName} can see a tailored Firecrawl path from "${parsedInput.painPoint}" to a bounded, source-backed demo package.`,
       architectureNote: TEMPLATE_ARCHITECTURE_NOTES[routedPlan.templateId],
     },
-    preview: {
-      companyName,
-      fixtureId: fixture.fixtureId,
-      sourcePageCount: fixture.pages.length,
-      primarySourceTitle: fixture.pages[0]?.title,
-      painPoint: parsedInput.painPoint,
-    },
+    preview: templateResult.preview,
     provenance: buildProvenance(fixture),
     creditEstimate,
-    files: [
-      {
-        path: "README.md",
-        description: "Founder-facing package overview with routing rationale and source notes.",
-        mediaType: "text/markdown",
-      },
-      {
-        path: "manifest.json",
-        description: "Structured DemoPackage metadata for preview rendering and export.",
-        mediaType: "application/json",
-      },
-    ],
+    files: templateResult.files,
   });
 }
