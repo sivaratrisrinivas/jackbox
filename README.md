@@ -6,7 +6,10 @@ package with a routed template, rationale, provenance, and exportable artifacts.
 
 ## Current Status
 
-The repo is now through the fixture-backed generation orchestration slice.
+The repo is now through the shared `DemoPackage` preview slice. A founder can
+submit a fixture-backed prospect brief, receive a normalized package manifest,
+and see summary metadata, template preview content, provenance, architecture
+notes, credit estimates, and package files rendered from the same contract.
 
 Completed:
 - Task 1: bootstrap the Next.js app shell
@@ -14,9 +17,10 @@ Completed:
 - Task 3: build the intake form and stubbed result shell
 - Task 4: implement routing, crawl target selection, and credit estimates
 - Task 5: build the generation orchestration route
+- Task 6: render the shared preview and result summary from `DemoPackage`
 
 Next in sequence:
-- Task 6: render the shared preview from `DemoPackage`
+- Task 7: implement the Docs Intelligence template slice
 
 ## Stack
 
@@ -37,9 +41,10 @@ Next in sequence:
 - Fixture adapter and sample fixture data for deterministic local development
 - Client-side prospect intake form with inline validation and routed loading, success, and error states
 - Deterministic template routing, bounded crawl target selection, and readable credit estimates
-- Unit coverage for contract validation, fixture parsing, routing, credit estimates, and the intake form flow
 - `/api/generate` route that returns a normalized fixture-backed `DemoPackage`
 - Structured route errors that the intake UI can render cleanly
+- Shared result rendering for summary metadata, template preview content, provenance links, architecture notes, credit estimates, and package files
+- Unit and integration coverage for contract validation, fixture parsing, routing, credit estimates, route orchestration, the intake form flow, and the demo preview renderer
 
 ## Commands
 
@@ -55,21 +60,22 @@ npm run test
 For a targeted verification run:
 
 ```bash
-npm run test:run -- tests/unit/router.test.ts tests/unit/estimate-credits.test.ts tests/unit/prospect-form.test.tsx
+npm run test:run -- tests/integration/demo-preview.test.tsx tests/unit/prospect-form.test.tsx
 ```
 
 ## Verification
 
-The current Task 5 slice passes:
+The current Task 6 slice passes:
 
 - `npm run build`
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:run -- tests/integration/generate-route.test.ts tests/unit/prospect-form.test.tsx`
+- `npm run test:run`
 
 ## Repository Notes
 
 - Fixture files live under `docs/fixtures/`
 - Shared validation and manifest contracts live under `lib/`
-- The current UI calls `/api/generate` and adapts the returned `DemoPackage` into the existing result shell
-- Shared preview rendering from the manifest lands next in Task 6
+- The current UI calls `/api/generate` and renders the returned `DemoPackage` directly in the result shell
+- Shared preview components live under `components/demo-preview.tsx`, `components/result-summary.tsx`, and `components/source-provenance.tsx`
+- Template-specific vertical slices begin next with Docs Intelligence
