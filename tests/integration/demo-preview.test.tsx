@@ -28,6 +28,7 @@ describe("DemoPackage preview rendering", () => {
     expect(screen.getByText(/Source links stay separate from generated copy/i)).toBeTruthy();
     expect(screen.getAllByText("Getting Started").length).toBeGreaterThan(0);
     expect(screen.getByText(/How can Acme Cloud answer this support workflow/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Download ZIP/i })).toBeTruthy();
     expect(screen.getByText("docs-intelligence/README.md")).toBeTruthy();
     expect(screen.getByText("docs-intelligence/answers.json")).toBeTruthy();
   });

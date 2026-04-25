@@ -1,4 +1,5 @@
 import { DemoPreview } from "@/components/demo-preview";
+import { ExportButton } from "@/components/export-button";
 import { ResultSummary } from "@/components/result-summary";
 import { SourceProvenance } from "@/components/source-provenance";
 import type { DemoPackage } from "@/lib/generation/demo-package";
@@ -84,6 +85,7 @@ export function ResultShell({ status, result, errorMessage }: ResultShellProps) 
       >
         <ResultSummary demoPackage={result} />
         <DemoPreview demoPackage={result} />
+        <ExportButton demoPackage={result} />
         <SourceProvenance demoPackage={result} />
 
         <article className="rounded-[1.8rem] border border-white/10 bg-white/[0.045] p-5">

@@ -315,14 +315,14 @@ Project scaffold + scripts
 **Description:** Build the export route that turns a generated `DemoPackage` into a downloadable archive containing README content, template files, and metadata the founder can share or inspect.
 
 **Acceptance criteria:**
-- [ ] The result screen exposes a ZIP export action for completed demo packages.
-- [ ] The exported archive contains template files, a README, and structured metadata for the chosen template.
-- [ ] Export generation uses curated template files only, not arbitrary code synthesis.
+- [x] The result screen exposes a ZIP export action for completed demo packages.
+- [x] The exported archive contains template files, a README, and structured metadata for the chosen template.
+- [x] Export generation uses curated template files only, not arbitrary code synthesis.
 
 **Verification:**
-- [ ] Tests pass: `npm run test -- --runInBand tests/integration/export-route.test.ts`
-- [ ] Build succeeds: `npm run build`
-- [ ] Manual check: downloading a ZIP produces a sensible archive that matches the previewed result
+- [x] Tests pass: `npm run test:run -- tests/integration/export-route.test.ts tests/integration/demo-preview.test.tsx`
+- [x] Build succeeds: `npm run build`
+- [x] Manual check: downloading a ZIP produces a sensible archive that matches the previewed result
 
 **Dependencies:** Tasks 5, 7, 8, 9
 
