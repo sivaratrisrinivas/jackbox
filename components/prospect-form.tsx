@@ -8,6 +8,8 @@ import {
   type GenerationStatusType,
   type StubGenerationResult,
 } from "@/components/result-shell";
+import { estimateCredits } from "@/lib/estimates/estimate-credits";
+import { routeProspect } from "@/lib/router/route-prospect";
 import {
   ProspectInputSchema,
   type ProspectInput,
@@ -43,19 +45,23 @@ function humanizeHost(companyUrl: string) {
 
 function buildStubResult(input: ProspectInput): StubGenerationResult {
   const companyName = humanizeHost(input.companyUrl);
+  const routedPlan = routeProspect(input);
+  const creditEstimate = estimateCredits(routedPlan);
 
   return {
     companyName,
     companyUrl: input.companyUrl,
     painPoint: input.painPoint,
+    routedPlan,
+    creditEstimate,
     summary:
-      "The intake is now converting a founder brief into a structured handoff. The next slice will replace this stub with real template routing, bounded crawl targets, and a credit estimate.",
+      "The brief now resolves into a deterministic template choice, bounded public crawl targets, and a rough credit estimate the UI can explain before full package generation lands.",
     nextMove:
-      "Task 4 will turn this brief into a deterministic template choice and a plain-English explanation for why it fits.",
+      "The next slice can call this same routing plan from the server route and return a normalized demo package.",
     outputArtifacts: [
-      `${companyName} brief captured with URL and buyer pain in one place.`,
-      "Result shell prepared for template rationale, provenance, and export metadata.",
-      "Page-level experience now has a visible landing flow instead of a placeholder shell.",
+      `${companyName} routed to ${routedPlan.templateId.replace(/-/g, " ")} with founder-readable rationale.`,
+      `${routedPlan.crawlTargets.length} public crawl targets selected inside the approved site surface.`,
+      `${creditEstimate.totalCredits} estimated credits broken into crawl, extraction, and package metadata.`,
     ],
   };
 }
@@ -135,7 +141,7 @@ export function ProspectForm() {
       if (submissionIntent === "error") {
         setStatus("error");
         setErrorMessage(
-          "The stub intentionally paused here so we can verify the fallback copy before the real orchestration route exists.",
+          "The preview intentionally paused here so we can keep fallback copy readable before the server orchestration route exists.",
         );
         return;
       }
@@ -228,7 +234,7 @@ export function ProspectForm() {
               disabled={status === "loading"}
               className="inline-flex min-h-13 items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-zinc-950 transition-transform duration-500 hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Generate stub preview
+              Generate routed preview
             </button>
             <button
               type="submit"

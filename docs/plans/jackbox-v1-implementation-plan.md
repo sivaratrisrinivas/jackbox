@@ -126,14 +126,14 @@ Project scaffold + scripts
 **Description:** Build deterministic logic that maps a prospect plus pain point to one of the three templates, a bounded list of crawl targets, and a rough credit estimate that can be shown in the UI.
 
 **Acceptance criteria:**
-- [ ] Seeded fixtures produce the expected template choice and explanation.
-- [ ] Crawl targets are bounded to the approved public site areas from the spec.
-- [ ] Credit estimates return a readable breakdown suitable for UI display.
+- [x] Seeded fixtures produce the expected template choice and explanation.
+- [x] Crawl targets are bounded to the approved public site areas from the spec.
+- [x] Credit estimates return a readable breakdown suitable for UI display.
 
 **Verification:**
-- [ ] Tests pass: `npm run test -- --runInBand tests/unit/router.test.ts tests/unit/estimate-credits.test.ts`
-- [ ] Typecheck succeeds: `npm run typecheck`
-- [ ] Manual check: the router explanation is understandable to a founder without internal jargon
+- [x] Tests pass: `npm run test:run -- tests/unit/router.test.ts tests/unit/estimate-credits.test.ts tests/unit/prospect-form.test.tsx`
+- [x] Typecheck succeeds: `npm run typecheck`
+- [x] Manual check: the router explanation is understandable to a founder without internal jargon
 
 **Dependencies:** Task 2
 

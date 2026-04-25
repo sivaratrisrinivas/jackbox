@@ -24,12 +24,12 @@ const bentoCards = [
   },
   {
     title: "Results",
-    copy: "The result panel is no longer a blank promise. It now has loading, success, and recovery states prepared for real orchestration data.",
+    copy: "The result panel is no longer a blank promise. It now has routing, crawl targets, estimates, and recovery states prepared for real orchestration data.",
     className: "md:col-span-2",
   },
   {
     title: "Fixtures",
-    copy: "This flow stays deterministic and founder-safe while routing logic, crawl planning, and estimates are still being wired.",
+    copy: "This flow stays deterministic and founder-safe while the preview exposes template routing, crawl planning, and estimates.",
     className: "md:col-span-2",
   },
   {
@@ -279,8 +279,8 @@ export function HomeExperience() {
               </h1>
               <p className="hero-copy mt-8 max-w-3xl text-base leading-8 text-zinc-300 md:text-lg">
                 Jackbox now has the intake surface founders actually need: one brief,
-                visible guardrails, and a result shell that feels like a real product path
-                instead of a placeholder promise.
+                visible guardrails, routed template logic, and a result shell that feels
+                like a real product path.
               </p>
               <div className="hero-actions mt-10 flex flex-wrap items-center gap-3">
                 <a
@@ -407,12 +407,12 @@ export function HomeExperience() {
               Handoff motion
             </p>
             <h2 className="mt-5 max-w-md text-4xl font-semibold tracking-tight text-white">
-              The intake now moves like a real product surface while the pipeline is still
-              stubbed.
+              The intake now moves like a real product surface while routing becomes
+              visible.
             </h2>
             <p className="mt-5 max-w-md text-sm leading-7 text-zinc-300">
-              This chapter is now powered by real ScrollTrigger pinning and stacked card
-              motion, which gives later routing and preview work a more credible stage.
+              This chapter is powered by real ScrollTrigger pinning and stacked card
+              motion, which gives later generation and preview work a more credible stage.
             </p>
           </div>
 
@@ -450,7 +450,7 @@ export function HomeExperience() {
               Next slice
             </p>
             <h2 className="mx-auto mt-5 max-w-4xl text-4xl font-semibold tracking-tight text-white">
-              Routing logic, crawl target selection, and credit estimates now have a more
+              Routing logic, crawl target selection, and credit estimates now have a
               credible motion system to land inside.
             </h2>
             <div className="mt-8 flex justify-center">

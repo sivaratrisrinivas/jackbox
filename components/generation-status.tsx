@@ -15,15 +15,15 @@ const STATUS_COPY: Record<
     eyebrow: "Founder Intake",
     title: "Waiting for a prospect brief",
     description:
-      "Drop in a public company URL and the buyer pain you want the demo to answer. This slice keeps the flow grounded before routing logic lands.",
+      "Drop in a public company URL and the buyer pain you want the demo to answer. The preview will choose a template, crawl scope, and credit estimate.",
     accent: "from-white/14 via-white/6 to-transparent",
     marker: <span className="h-2.5 w-2.5 rounded-full bg-white/80" />,
   },
   loading: {
     eyebrow: "Generation In Progress",
-    title: "Shaping the stubbed handoff",
+    title: "Routing the founder brief",
     description:
-      "We are rehearsing the async path here so the page feels like the real generation flow before the server route is wired.",
+      "The client preview is scoring the brief, selecting approved public targets, and estimating the package cost.",
     accent: "from-sky-400/30 via-sky-300/10 to-transparent",
     marker: (
       <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-sky-300" />
@@ -31,15 +31,15 @@ const STATUS_COPY: Record<
   },
   success: {
     eyebrow: "Result Shell",
-    title: "Stub preview ready",
+    title: "Routed preview ready",
     description:
-      "The intake is validated and the result area is now holding a structured founder-facing handoff for the next pipeline slice.",
+      "The intake is validated and the result area now shows the deterministic plan the server route can reuse.",
     accent: "from-emerald-400/30 via-emerald-300/10 to-transparent",
     marker: <span className="h-2.5 w-2.5 rounded-full bg-emerald-300" />,
   },
   error: {
     eyebrow: "Fallback State",
-    title: "The stub hit a deliberate failure path",
+    title: "The preview hit a deliberate failure path",
     description:
       "This state is here so we can design readable recovery before the real orchestration route exists.",
     accent: "from-rose-400/30 via-rose-300/10 to-transparent",

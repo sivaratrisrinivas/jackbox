@@ -6,15 +6,15 @@ package with a routed template, rationale, provenance, and exportable artifacts.
 
 ## Current Status
 
-The repo is now through the founder-facing intake slice and ready for routing logic.
+The repo is now through the founder-facing intake and routing preview slices.
 
 Completed:
 - Task 1: bootstrap the Next.js app shell
 - Task 2: define core contracts and fixture loading
 - Task 3: build the intake form and stubbed result shell
+- Task 4: implement routing, crawl target selection, and credit estimates
 
 Next in sequence:
-- Task 4: implement routing, crawl target selection, and credit estimates
 - Task 5: build the generation orchestration route
 - Task 6: render the shared preview from `DemoPackage`
 
@@ -35,8 +35,9 @@ Next in sequence:
 - GSAP-powered marquee and handoff motion layer for the landing page
 - Shared schemas for prospect input, routed plans, and the `DemoPackage` manifest
 - Fixture adapter and sample fixture data for deterministic local development
-- Client-side prospect intake form with inline validation and stubbed loading, success, and error states
-- Unit coverage for contract validation, fixture parsing, and the intake form flow
+- Client-side prospect intake form with inline validation and routed loading, success, and error states
+- Deterministic template routing, bounded crawl target selection, and readable credit estimates
+- Unit coverage for contract validation, fixture parsing, routing, credit estimates, and the intake form flow
 
 ## Commands
 
@@ -52,20 +53,20 @@ npm run test
 For a targeted verification run:
 
 ```bash
-npm run test:run -- tests/unit/prospect-form.test.tsx
+npm run test:run -- tests/unit/router.test.ts tests/unit/estimate-credits.test.ts tests/unit/prospect-form.test.tsx
 ```
 
 ## Verification
 
-The current Task 3 slice passes:
+The current Task 4 slice passes:
 
 - `npm run build`
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:run`
+- `npm run test:run -- tests/unit/router.test.ts tests/unit/estimate-credits.test.ts tests/unit/prospect-form.test.tsx`
 
 ## Repository Notes
 
 - Fixture files live under `docs/fixtures/`
 - Shared validation and manifest contracts live under `lib/`
-- The current UI is intentionally a stubbed intake and motion slice; routing, estimates, and generated previews land next
+- The current UI previews routing, estimates, and crawl targets locally; generated server packages land next

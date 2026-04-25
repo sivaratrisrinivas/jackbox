@@ -1,9 +1,14 @@
+import type { CreditEstimate } from "@/lib/generation/demo-package";
+import type { RoutedDemoPlan } from "@/lib/validation/prospect";
+
 export type GenerationStatusType = "idle" | "loading" | "success" | "error";
 
 export interface StubGenerationResult {
   companyName: string;
   companyUrl: string;
   painPoint: string;
+  routedPlan: RoutedDemoPlan;
+  creditEstimate: CreditEstimate;
   summary: string;
   nextMove: string;
   outputArtifacts: string[];
@@ -45,8 +50,9 @@ export function ResultShell({ status, result, errorMessage }: ResultShellProps) 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {[
             "Normalizing the prospect URL and pain point.",
-            "Holding space for template rationale and crawl planning.",
-            "Staging the result area for success or recovery copy.",
+            "Scoring the brief against the three curated templates.",
+            "Selecting public crawl targets inside the approved site surface.",
+            "Estimating crawl, extraction, and packaging credits.",
           ].map((item) => (
             <div
               key={item}
@@ -70,7 +76,7 @@ export function ResultShell({ status, result, errorMessage }: ResultShellProps) 
           Recovery note
         </p>
         <h3 className="mt-4 text-2xl font-semibold text-white">
-          We could not shape the stubbed preview.
+          We could not shape the routed preview.
         </h3>
         <p className="mt-3 text-sm leading-7 text-rose-100/80">
           {errorMessage ?? "Try a different brief and we will keep the result shell readable."}
@@ -88,14 +94,14 @@ export function ResultShell({ status, result, errorMessage }: ResultShellProps) 
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-emerald-200/80">
-              Stubbed handoff
+              Routed handoff
             </p>
             <h3 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-white">
               {result.companyName} is ready for a tailored Firecrawl walkthrough.
             </h3>
           </div>
           <div className="rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm text-zinc-200">
-            Validated input
+            {result.routedPlan.templateId.replace(/-/g, " ")}
           </div>
         </div>
 
@@ -116,34 +122,70 @@ export function ResultShell({ status, result, errorMessage }: ResultShellProps) 
 
         <article className="mt-4 rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/45">
-            Summary
+            Routing rationale
           </p>
-          <p className="mt-3 text-sm leading-7 text-zinc-200">{result.summary}</p>
+          <p className="mt-3 text-sm leading-7 text-zinc-200">
+            {result.routedPlan.reason}
+          </p>
         </article>
 
         <div className="mt-8 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
           <article className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/45">
-              Prepared output
+              Crawl targets
             </p>
             <ul className="mt-4 space-y-3">
-              {result.outputArtifacts.map((artifact) => (
+              {result.routedPlan.crawlTargets.map((target) => (
                 <li
-                  key={artifact}
+                  key={target}
                   className="rounded-[1.2rem] border border-white/8 bg-black/30 px-4 py-3 text-sm leading-6 text-zinc-200"
                 >
-                  {artifact}
+                  {target}
                 </li>
               ))}
             </ul>
           </article>
           <article className="rounded-[1.5rem] border border-emerald-300/15 bg-emerald-400/10 p-5">
             <p className="text-sm font-medium uppercase tracking-[0.2em] text-emerald-100/70">
-              Next move
+              Credit estimate
             </p>
-            <p className="mt-3 text-sm leading-7 text-zinc-100">{result.nextMove}</p>
+            <p className="mt-3 text-4xl font-semibold tracking-tight text-white">
+              {result.creditEstimate.totalCredits}
+            </p>
+            <p className="mt-3 text-sm leading-7 text-zinc-100">
+              {result.creditEstimate.rationale}
+            </p>
+            <ul className="mt-4 space-y-2">
+              {result.creditEstimate.breakdown.map((lineItem) => (
+                <li
+                  key={lineItem.label}
+                  className="flex items-center justify-between gap-4 rounded-[1rem] border border-emerald-100/10 bg-black/20 px-3 py-2 text-sm text-zinc-100"
+                >
+                  <span>{lineItem.label}</span>
+                  <span className="font-semibold">{lineItem.credits}</span>
+                </li>
+              ))}
+            </ul>
           </article>
         </div>
+
+        <article className="mt-4 rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/45">
+            Package handoff
+          </p>
+          <p className="mt-3 text-sm leading-7 text-zinc-200">{result.summary}</p>
+          <p className="mt-3 text-sm leading-7 text-zinc-300">{result.nextMove}</p>
+          <ul className="mt-4 space-y-3">
+            {result.outputArtifacts.map((artifact) => (
+              <li
+                key={artifact}
+                className="rounded-[1.2rem] border border-white/8 bg-black/30 px-4 py-3 text-sm leading-6 text-zinc-200"
+              >
+                {artifact}
+              </li>
+            ))}
+          </ul>
+        </article>
       </section>
     );
   }
@@ -192,9 +234,8 @@ export function ResultShell({ status, result, errorMessage }: ResultShellProps) 
             Outcome
           </p>
           <p className="mt-4 text-sm leading-7 text-zinc-200">
-            For Task 3, the panel is intentionally stubbed. The point is to make the
-            founder flow readable before the router, crawl targets, and package manifest
-            are actually generated.
+            The panel now previews the same routing, crawl target, and credit estimate
+            shape that the server generation route will use in the next slice.
           </p>
         </article>
       </div>
