@@ -1,22 +1,13 @@
-import type { CreditEstimate } from "@/lib/generation/demo-package";
-import type { RoutedDemoPlan } from "@/lib/validation/prospect";
+import { DemoPreview } from "@/components/demo-preview";
+import { ResultSummary } from "@/components/result-summary";
+import { SourceProvenance } from "@/components/source-provenance";
+import type { DemoPackage } from "@/lib/generation/demo-package";
 
 export type GenerationStatusType = "idle" | "loading" | "success" | "error";
 
-export interface StubGenerationResult {
-  companyName: string;
-  companyUrl: string;
-  painPoint: string;
-  routedPlan: RoutedDemoPlan;
-  creditEstimate: CreditEstimate;
-  summary: string;
-  nextMove: string;
-  outputArtifacts: string[];
-}
-
 export interface ResultShellProps {
   status: GenerationStatusType;
-  result?: StubGenerationResult | null;
+  result?: DemoPackage | null;
   errorMessage?: string | null;
 }
 
@@ -89,102 +80,32 @@ export function ResultShell({ status, result, errorMessage }: ResultShellProps) 
     return (
       <section
         aria-live="polite"
-        className="rounded-[2rem] border border-white/12 bg-black/35 p-6 shadow-[0_20px_80px_rgba(8,15,30,0.45)] backdrop-blur"
+        className="space-y-5 rounded-[2rem] border border-white/12 bg-black/35 p-5 shadow-[0_20px_80px_rgba(8,15,30,0.45)] backdrop-blur md:p-6"
       >
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-emerald-200/80">
-              Routed handoff
-            </p>
-            <h3 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-white">
-              {result.companyName} is ready for a tailored Firecrawl walkthrough.
-            </h3>
-          </div>
-          <div className="rounded-full border border-white/12 bg-white/6 px-4 py-2 text-sm text-zinc-200">
-            {result.routedPlan.templateId.replace(/-/g, " ")}
-          </div>
-        </div>
+        <ResultSummary demoPackage={result} />
+        <DemoPreview demoPackage={result} />
+        <SourceProvenance demoPackage={result} />
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
-          <article className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/45">
-              Prospect URL
-            </p>
-            <p className="mt-3 text-sm leading-7 text-zinc-200">{result.companyUrl}</p>
-          </article>
-          <article className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/45">
-              Buyer pain
-            </p>
-            <p className="mt-3 text-sm leading-7 text-zinc-200">{result.painPoint}</p>
-          </article>
-        </div>
-
-        <article className="mt-4 rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+        <article className="rounded-[1.8rem] border border-white/10 bg-white/[0.045] p-5">
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/45">
-            Routing rationale
+            Architecture note
           </p>
           <p className="mt-3 text-sm leading-7 text-zinc-200">
-            {result.routedPlan.reason}
+            {result.summary.architectureNote}
           </p>
-        </article>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
-          <article className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/45">
-              Crawl targets
-            </p>
-            <ul className="mt-4 space-y-3">
-              {result.routedPlan.crawlTargets.map((target) => (
-                <li
-                  key={target}
-                  className="rounded-[1.2rem] border border-white/8 bg-black/30 px-4 py-3 text-sm leading-6 text-zinc-200"
-                >
-                  {target}
-                </li>
-              ))}
-            </ul>
-          </article>
-          <article className="rounded-[1.5rem] border border-emerald-300/15 bg-emerald-400/10 p-5">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-emerald-100/70">
-              Credit estimate
-            </p>
-            <p className="mt-3 text-4xl font-semibold tracking-tight text-white">
-              {result.creditEstimate.totalCredits}
-            </p>
-            <p className="mt-3 text-sm leading-7 text-zinc-100">
-              {result.creditEstimate.rationale}
-            </p>
-            <ul className="mt-4 space-y-2">
-              {result.creditEstimate.breakdown.map((lineItem) => (
-                <li
-                  key={lineItem.label}
-                  className="flex items-center justify-between gap-4 rounded-[1rem] border border-emerald-100/10 bg-black/20 px-3 py-2 text-sm text-zinc-100"
-                >
-                  <span>{lineItem.label}</span>
-                  <span className="font-semibold">{lineItem.credits}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
-        </div>
-
-        <article className="mt-4 rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/45">
-            Package handoff
-          </p>
-          <p className="mt-3 text-sm leading-7 text-zinc-200">{result.summary}</p>
-          <p className="mt-3 text-sm leading-7 text-zinc-300">{result.nextMove}</p>
-          <ul className="mt-4 space-y-3">
-            {result.outputArtifacts.map((artifact) => (
-              <li
-                key={artifact}
-                className="rounded-[1.2rem] border border-white/8 bg-black/30 px-4 py-3 text-sm leading-6 text-zinc-200"
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {result.files.map((file) => (
+              <div
+                key={file.path}
+                className="rounded-[1.15rem] border border-white/8 bg-black/25 p-4"
               >
-                {artifact}
-              </li>
+                <p className="font-medium text-white">{file.path}</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-300">
+                  {file.description}
+                </p>
+              </div>
             ))}
-          </ul>
+          </div>
         </article>
       </section>
     );

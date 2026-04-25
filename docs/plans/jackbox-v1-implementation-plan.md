@@ -176,14 +176,14 @@ Project scaffold + scripts
 **Description:** Build the UI components that render the routed template preview, "why this matters" note, architecture summary, provenance list, and credit estimate from the normalized manifest.
 
 **Acceptance criteria:**
-- [ ] The result view renders summary metadata consistently across templates.
-- [ ] Provenance links and architecture notes are visible and distinct from generated marketing copy.
-- [ ] The preview container can swap template-specific content without changing the page-level layout.
+- [x] The result view renders summary metadata consistently across templates.
+- [x] Provenance links and architecture notes are visible and distinct from generated marketing copy.
+- [x] The preview container can swap template-specific content without changing the page-level layout.
 
 **Verification:**
-- [ ] Build succeeds: `npm run build`
-- [ ] Tests pass: `npm run test -- --runInBand tests/integration/demo-preview.test.tsx`
-- [ ] Manual check: a returned `DemoPackage` renders a coherent result screen end to end
+- [x] Build succeeds: `npm run build`
+- [x] Tests pass: `npm run test:run -- tests/integration/demo-preview.test.tsx tests/unit/prospect-form.test.tsx`
+- [x] Manual check: a returned `DemoPackage` renders a coherent result screen end to end
 
 **Dependencies:** Tasks 3, 5
 
@@ -197,9 +197,9 @@ Project scaffold + scripts
 **Estimated scope:** Medium
 
 ### Checkpoint: After Phase 2
-- [ ] A founder can submit input and receive a structured result from fixtures
-- [ ] Routing, estimates, and result rendering all work through the shared manifest
-- [ ] The system is ready for template-specific vertical slices
+- [x] A founder can submit input and receive a structured result from fixtures
+- [x] Routing, estimates, and result rendering all work through the shared manifest
+- [x] The system is ready for template-specific vertical slices
 
 ### Phase 3: Template Slices
 

@@ -55,7 +55,7 @@ describe("ProspectForm", () => {
     expect(
       await screen.findByText(/Acme Cloud is ready for a tailored Firecrawl walkthrough/i),
     ).toBeTruthy();
-    expect(await screen.findByText(/docs intelligence/i)).toBeTruthy();
+    expect((await screen.findAllByText(/docs intelligence/i)).length).toBeGreaterThan(0);
     expect(await screen.findByText(/credit estimate/i)).toBeTruthy();
   });
 

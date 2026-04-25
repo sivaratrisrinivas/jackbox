@@ -3,11 +3,7 @@
 import { useId, useMemo, useState } from "react";
 import { z } from "zod";
 import { GenerationStatus } from "@/components/generation-status";
-import {
-  ResultShell,
-  type GenerationStatusType,
-  type StubGenerationResult,
-} from "@/components/result-shell";
+import { ResultShell, type GenerationStatusType } from "@/components/result-shell";
 import {
   DemoPackageSchema,
   type DemoPackage,
@@ -33,16 +29,6 @@ function getFieldErrors(error: z.ZodError<ProspectInput>): FieldErrors {
   };
 }
 
-function humanizeHost(companyUrl: string) {
-  try {
-    const host = new URL(companyUrl).hostname.replace(/^www\./, "");
-    const [name] = host.split(".");
-    return name.replace(/[-_]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-  } catch {
-    return "This prospect";
-  }
-}
-
 function getRouteErrorMessage(payload: unknown) {
   if (
     payload &&
@@ -56,28 +42,6 @@ function getRouteErrorMessage(payload: unknown) {
   return "The generation route returned an error the preview could not read.";
 }
 
-function demoPackageToResult(demoPackage: DemoPackage): StubGenerationResult {
-  const companyName =
-    typeof demoPackage.preview.companyName === "string"
-      ? demoPackage.preview.companyName
-      : humanizeHost(demoPackage.input.companyUrl);
-
-  return {
-    companyName,
-    companyUrl: demoPackage.input.companyUrl,
-    painPoint: demoPackage.input.painPoint,
-    routedPlan: demoPackage.routedPlan,
-    creditEstimate: demoPackage.creditEstimate,
-    summary: demoPackage.summary.whyThisMatters,
-    nextMove: demoPackage.summary.architectureNote,
-    outputArtifacts: [
-      `${companyName} generated package ${demoPackage.id}.`,
-      `${demoPackage.provenance.length} fixture-backed source pages preserved as provenance.`,
-      `${demoPackage.files.length} package files prepared for the export slice.`,
-    ],
-  };
-}
-
 export function ProspectForm() {
   const companyUrlId = useId();
   const painPointId = useId();
@@ -85,7 +49,7 @@ export function ProspectForm() {
   const [values, setValues] = useState(INITIAL_VALUES);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<GenerationStatusType>("idle");
-  const [result, setResult] = useState<StubGenerationResult | null>(null);
+  const [result, setResult] = useState<DemoPackage | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const headerTone = useMemo(() => {
@@ -157,7 +121,7 @@ export function ProspectForm() {
       }
 
       const demoPackage = DemoPackageSchema.parse(payload);
-      setResult(demoPackageToResult(demoPackage));
+      setResult(demoPackage);
       setStatus("success");
     } catch (error) {
       setStatus("error");
