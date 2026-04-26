@@ -1,157 +1,86 @@
 # Jackbox
 
-Jackbox is a founder-facing prospect demo generator. You give it a company URL
-and a one-sentence pain point, and it turns that into a tailored Firecrawl demo
-package with a routed template, rationale, provenance, and exportable artifacts.
+Jackbox turns a company URL and one sentence about a buyer's problem into a
+tailored demo package. It helps a founder show a prospect something specific to
+their own public website instead of giving a generic product walkthrough.
 
-## Current Status
+## What It Does
 
-The repo is now through Task 12. A founder can submit a prospect brief, receive
-a tailored demo package, preview the selected template, and download a ZIP file
-with the README, template files, and metadata that match the preview. Jackbox can
-use live Firecrawl data when credentials are present, and it can fall back to
-fixtures so demos, integration tests, and browser e2e tests stay reliable.
+Jackbox asks for two things:
 
-Completed:
-- Task 1: bootstrap the Next.js app shell
-- Task 2: define core contracts and fixture loading
-- Task 3: build the intake form and stubbed result shell
-- Task 4: implement routing, crawl target selection, and credit estimates
-- Task 5: build the generation orchestration route
-- Task 6: render the shared preview and result summary from `DemoPackage`
-- Task 7: implement the Docs Intelligence template slice
-- Task 8: implement the Change Monitor template slice
-- Task 9: implement the Account Research template slice
-- Task 10: add the Firecrawl live adapter with bounded fallback behavior
-- Task 11: implement ZIP export and package assembly
-- Task 12: add seeded E2E demos, README guidance, and final polish
+- a company website
+- the problem you want to solve for that company
 
-## Stack
+It then creates a demo preview with:
 
-- Next.js 15
-- React 19
-- GSAP 3
-- TypeScript 5
-- Tailwind CSS 4
-- Zod 4
-- Vitest 2
+- the demo type Jackbox chose
+- a short reason for that choice
+- a preview built from saved or live website data
+- links back to the source pages used
+- a rough Firecrawl credit estimate
+- a ZIP download with the demo notes and files
 
-## What Landed
+Jackbox currently supports three demo types:
 
-- App Router scaffold with a founder-facing landing experience
-- Tailwind, TypeScript, ESLint, and PostCSS config
-- GSAP-powered marquee and handoff motion layer for the landing page
-- Shared schemas for prospect input, routed plans, and the `DemoPackage` manifest
-- Fixture adapter and sample fixture data for deterministic local development
-- Client-side prospect intake form with inline validation and routed loading, success, and error states
-- Deterministic template routing, bounded crawl target selection, and readable credit estimates
-- `/api/generate` route that returns a normalized fixture-backed `DemoPackage`
-- Structured route errors that the intake UI can render cleanly
-- Shared result rendering for summary metadata, template preview content, provenance links, architecture notes, credit estimates, and package files
-- Docs Intelligence generator that returns source-linked answers and exportable README/JSON artifacts
-- Change Monitor generator that returns tracked-page summaries, alert-ready monitoring value, and exportable README/JSON artifacts
-- Account Research generator that returns concise pricing, product, customer, and hiring signals with a pre-call brief and exportable README/JSON artifacts
-- Firecrawl mode resolution with `auto`, `fixture`, and `live` behavior plus a bounded live crawl adapter
-- Fixture fallback messaging in the result surface so the active data source is visible to the founder
-- ZIP export from the result screen, including a plain README, structured metadata, and the curated files for the chosen template
-- Unit and integration coverage for contract validation, fixture parsing, routing, credit estimates, route orchestration, the intake form flow, the demo preview renderer, the live adapter, and the Docs Intelligence, Change Monitor, and Account Research slices
+- **Docs Intelligence:** answers questions using a company's public docs
+- **Change Monitor:** tracks public pages such as pricing, releases, and product pages
+- **Account Research Brief:** creates a short pre-call research brief for sales conversations
 
-## ZIP Export: What, Why, and How
+## Why It Exists
 
-### What
+Founder-led sales works best when the demo feels personal. Building a custom demo
+for every prospect takes too long, and a generic demo can feel disconnected from
+the buyer's actual problem.
 
-When a preview finishes, the result screen shows a `Download ZIP` button. That
-ZIP contains:
+Jackbox gives the founder a faster middle path:
 
-- `README.md`: a short explanation of the generated demo
-- `metadata/demo-package.json`: the full structured package behind the preview
-- Template files such as `docs-intelligence/README.md`,
-  `change-monitor/monitor.json`, or `account-research/brief.json`
+- use the prospect's public website as the starting point
+- choose one focused demo type
+- show why that demo type fits the buyer's problem
+- keep the sources visible so the result is easy to trust
+- export the result so it can be shared after the call
 
-The export uses the package that Jackbox already generated. It does not invent a
-new app or create files outside the curated template list.
+The goal is not to create production-ready customer software. The goal is to make
+a focused, credible demo package that is useful during a sales conversation.
 
-### Why
+## How It Works
 
-The preview is useful during a sales call, but founders also need something they
-can inspect, share, and keep. The ZIP gives them that handoff without making the
-generated demo sound more complete than it is. It keeps the sources, routing
-reason, credit estimate, and template files together in one portable archive.
+1. You enter a company URL and a buyer pain point.
+2. Jackbox checks that the input is usable.
+3. Jackbox loads public website data.
+4. It picks one of the three demo types.
+5. It builds a preview and explains the choice.
+6. You can download a ZIP with the generated README, data, and template files.
 
-### How
+For local demos and tests, Jackbox can use saved fixture data. This means you can
+show the full flow without needing a live Firecrawl key.
 
-Run the app, generate a preview, then click `Download ZIP` in the result panel.
+## How To Run It
 
-```bash
-npm run dev
-```
-
-For a repeatable local demo, use fixture mode:
-
-```bash
-export JACKBOX_FIRECRAWL_MODE=fixture
-npm run dev
-```
-
-To test the export route directly:
-
-```bash
-npm run test:run -- tests/integration/export-route.test.ts tests/integration/demo-preview.test.tsx
-```
-
-## Commands
+Install dependencies:
 
 ```bash
 npm install
-npm run dev
-npm run build
-npm run lint
-npm run typecheck
-npm run test
-npm run test:e2e
 ```
 
-## Firecrawl Modes
-
-Jackbox supports three server-side Firecrawl modes through
-`JACKBOX_FIRECRAWL_MODE`:
-
-- `auto` (default): use live Firecrawl when `FIRECRAWL_API_KEY` is present,
-  otherwise fall back to fixtures
-- `fixture`: always use deterministic fixture data
-- `live`: require `FIRECRAWL_API_KEY` and fail clearly if live crawling is not
-  available
-
-Example WSL session:
+Start the app:
 
 ```bash
-export JACKBOX_FIRECRAWL_MODE=fixture
 npm run dev
 ```
 
-```bash
-export FIRECRAWL_API_KEY=your_key_here
-export JACKBOX_FIRECRAWL_MODE=live
-npm run dev
+Open the local URL shown by Next.js, usually:
+
+```text
+http://localhost:3000
 ```
 
-## Seeded Demo Walkthroughs: What, Why, and How
+## How To Run A Saved Demo
 
-### What
+Saved demos are the easiest way to try Jackbox. They use example company URLs and
+saved website data, so the result is repeatable.
 
-Jackbox includes three saved demo inputs. Each one uses a pretend company URL and
-routes to one of the three demo types: docs answers, page change tracking, or an
-account research brief.
-
-### Why
-
-These saved demos make the app easy to show and test. You do not need a real
-Firecrawl key, a live website, or a stable internet connection to prove the main
-flow works. Everyone can use the same inputs and see the same kind of result.
-
-### How
-
-Start the app in WSL with saved demo data:
+Start the app in fixture mode:
 
 ```bash
 export JACKBOX_FIRECRAWL_MODE=fixture
@@ -160,27 +89,76 @@ npm run dev
 
 Then use one of these inputs:
 
-| Template | Company URL | Pain point |
+| Demo type | Company URL | Pain point |
 | --- | --- | --- |
 | Docs Intelligence | `https://acme.example.com` | `Support teams cannot answer product questions from the latest docs fast enough.` |
 | Change Monitor | `https://signalforge.example.com` | `Product marketing needs to track competitor pricing and release page changes before weekly planning.` |
 | Account Research Brief | `https://northstar.example.com` | `Sales needs a sharper account research brief before qualification calls.` |
 
-The same scenarios are saved in `docs/fixtures/seeded-scenarios.json`. The
-browser test uses them as the source of truth, so the test and the walkthrough do
-not drift apart.
+These same saved demos live in
+`docs/fixtures/seeded-scenarios.json`.
 
-## Browser Test: What, Why, and How
+## How To Use Live Firecrawl Data
+
+Fixture mode is best for repeatable demos. Live mode is for trying real company
+websites.
+
+Set your Firecrawl key and start the app in live mode:
+
+```bash
+export FIRECRAWL_API_KEY=your_key_here
+export JACKBOX_FIRECRAWL_MODE=live
+npm run dev
+```
+
+Jackbox also supports an automatic mode:
+
+```bash
+export JACKBOX_FIRECRAWL_MODE=auto
+npm run dev
+```
+
+In automatic mode, Jackbox uses live Firecrawl data when a key is available. If
+there is no key, it uses saved fixture data instead.
+
+## ZIP Export: What, Why, And How
+
+### What
+
+After Jackbox creates a preview, the result screen shows a `Download ZIP` button.
+The ZIP contains:
+
+- `README.md`: a plain-English summary of the generated demo
+- `metadata/demo-package.json`: the structured data behind the preview
+- template files for the chosen demo type
+
+### Why
+
+The preview helps during the call. The ZIP gives you something to keep, inspect,
+and share afterward. It keeps the sources, reasoning, estimate, and generated
+files together in one place.
+
+### How
+
+Run Jackbox, generate a preview, then click `Download ZIP`.
+
+To test the export route directly:
+
+```bash
+npm run test:run -- tests/integration/export-route.test.ts tests/integration/demo-preview.test.tsx
+```
+
+## Browser Test: What, Why, And How
 
 ### What
 
 The browser test opens Jackbox, fills in the form, generates a demo preview, and
-checks that the ZIP download button is available.
+checks that the ZIP download button is visible.
 
 ### Why
 
-This catches problems that smaller tests can miss, such as the form not talking
-to the server, the result screen not showing, or the export action disappearing.
+This catches problems that smaller tests can miss, such as the form failing to
+reach the server or the result screen failing to appear.
 
 ### How
 
@@ -196,20 +174,28 @@ If the browser runtime is missing, install it once from WSL:
 TMPDIR=/tmp TMP=/tmp TEMP=/tmp PLAYWRIGHT_BROWSERS_PATH=/tmp/ms-playwright npx playwright install chromium
 ```
 
-For a targeted verification run:
+## Common Commands
 
 ```bash
-npm run test:run -- tests/integration/export-route.test.ts tests/integration/demo-preview.test.tsx
-npm run test:run -- tests/integration/docs-intelligence.test.ts tests/integration/demo-preview.test.tsx
-npm run test:run -- tests/integration/change-monitor.test.ts
-npm run test:run -- tests/integration/account-research.test.ts
-npm run test:run -- tests/integration/firecrawl-adapter.test.ts
+npm run dev
+npm run build
+npm run lint
+npm run typecheck
+npm run test:run
 npm run test:e2e
 ```
 
-## Verification
+## Current Status
 
-The current Task 12 slice passes:
+Task 12 is complete. The app can:
+
+- generate all three saved demo types
+- use fixture mode or live Firecrawl mode
+- show a preview with sources and a credit estimate
+- export the generated package as a ZIP
+- run unit, integration, and browser tests
+
+Verified commands:
 
 - `npm run build`
 - `npm run lint`
@@ -217,13 +203,11 @@ The current Task 12 slice passes:
 - `npm run test:run`
 - `npm run test:e2e`
 
-## Repository Notes
+## Where Things Live
 
-- Fixture files live under `docs/fixtures/`
-- Shared validation and manifest contracts live under `lib/`
-- The current UI calls `/api/generate` and renders the returned `DemoPackage` directly in the result shell
-- Shared preview components live under `components/demo-preview.tsx`, `components/result-summary.tsx`, and `components/source-provenance.tsx`
-- The Account Research preview adds a dedicated motion-rich research surface at `components/account-research-preview.tsx`
-- The Firecrawl adapter lives under `lib/firecrawl/` and exposes both live and fixture-backed loading paths
-- ZIP export lives under `app/api/export/route.ts`, `lib/generation/build-export.ts`, and `components/export-button.tsx`
-- Seeded e2e coverage lives under `e2e/` with Playwright config in `playwright.config.ts`
+- `app/`: app routes and API routes
+- `components/`: form, preview, result, and export UI
+- `lib/`: validation, routing, Firecrawl loading, estimates, and package building
+- `templates/`: files used for each demo type
+- `docs/fixtures/`: saved demo data
+- `e2e/`: browser test
