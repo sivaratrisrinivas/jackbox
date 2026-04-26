@@ -135,9 +135,23 @@ export JACKBOX_FIRECRAWL_MODE=live
 npm run dev
 ```
 
-## Seeded Demo Walkthroughs
+## Seeded Demo Walkthroughs: What, Why, and How
 
-Fixture mode gives three repeatable founder demos. Start the app in WSL:
+### What
+
+Jackbox includes three saved demo inputs. Each one uses a pretend company URL and
+routes to one of the three demo types: docs answers, page change tracking, or an
+account research brief.
+
+### Why
+
+These saved demos make the app easy to show and test. You do not need a real
+Firecrawl key, a live website, or a stable internet connection to prove the main
+flow works. Everyone can use the same inputs and see the same kind of result.
+
+### How
+
+Start the app in WSL with saved demo data:
 
 ```bash
 export JACKBOX_FIRECRAWL_MODE=fixture
@@ -152,20 +166,31 @@ Then use one of these inputs:
 | Change Monitor | `https://signalforge.example.com` | `Product marketing needs to track competitor pricing and release page changes before weekly planning.` |
 | Account Research Brief | `https://northstar.example.com` | `Sales needs a sharper account research brief before qualification calls.` |
 
-The same scenarios are recorded in `docs/fixtures/seeded-scenarios.json` so
-browser tests and live walkthroughs stay aligned.
+The same scenarios are saved in `docs/fixtures/seeded-scenarios.json`. The
+browser test uses them as the source of truth, so the test and the walkthrough do
+not drift apart.
 
-## E2E Verification
+## Browser Test: What, Why, and How
 
-The Playwright happy path covers submit -> routed result -> preview -> export
-availability in fixture mode:
+### What
+
+The browser test opens Jackbox, fills in the form, generates a demo preview, and
+checks that the ZIP download button is available.
+
+### Why
+
+This catches problems that smaller tests can miss, such as the form not talking
+to the server, the result screen not showing, or the export action disappearing.
+
+### How
+
+Run the browser test from WSL:
 
 ```bash
 npm run test:e2e
 ```
 
-The script pins temp and browser cache paths to `/tmp` for WSL. If the Chromium
-runtime is missing, install it once from WSL:
+If the browser runtime is missing, install it once from WSL:
 
 ```bash
 TMPDIR=/tmp TMP=/tmp TEMP=/tmp PLAYWRIGHT_BROWSERS_PATH=/tmp/ms-playwright npx playwright install chromium
