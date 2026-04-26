@@ -37,3 +37,13 @@ Each fixture is validated by `ProspectFixtureSchema` in
 
 Use `createFixtureLoader()` for adapter-style access or
 `loadFixtureProspectData("acme-docs")` when a direct helper is enough.
+
+## Seeded Demo Scenarios
+
+Use `seeded-scenarios.json` for repeatable walkthroughs and browser tests. Each
+scenario maps a founder input to the fixture and template Jackbox should route
+to in fixture mode:
+
+- `https://acme.example.com` -> Docs Intelligence
+- `https://signalforge.example.com` -> Change Monitor
+- `https://northstar.example.com` -> Account Research Brief

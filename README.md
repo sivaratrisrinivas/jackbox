@@ -6,11 +6,11 @@ package with a routed template, rationale, provenance, and exportable artifacts.
 
 ## Current Status
 
-The repo is now through Task 11. A founder can submit a prospect brief, receive
+The repo is now through Task 12. A founder can submit a prospect brief, receive
 a tailored demo package, preview the selected template, and download a ZIP file
 with the README, template files, and metadata that match the preview. Jackbox can
 use live Firecrawl data when credentials are present, and it can fall back to
-fixtures so demos and tests stay reliable.
+fixtures so demos, integration tests, and browser e2e tests stay reliable.
 
 Completed:
 - Task 1: bootstrap the Next.js app shell
@@ -24,8 +24,6 @@ Completed:
 - Task 9: implement the Account Research template slice
 - Task 10: add the Firecrawl live adapter with bounded fallback behavior
 - Task 11: implement ZIP export and package assembly
-
-Next in sequence:
 - Task 12: add seeded E2E demos, README guidance, and final polish
 
 ## Stack
@@ -110,6 +108,7 @@ npm run build
 npm run lint
 npm run typecheck
 npm run test
+npm run test:e2e
 ```
 
 ## Firecrawl Modes
@@ -136,6 +135,42 @@ export JACKBOX_FIRECRAWL_MODE=live
 npm run dev
 ```
 
+## Seeded Demo Walkthroughs
+
+Fixture mode gives three repeatable founder demos. Start the app in WSL:
+
+```bash
+export JACKBOX_FIRECRAWL_MODE=fixture
+npm run dev
+```
+
+Then use one of these inputs:
+
+| Template | Company URL | Pain point |
+| --- | --- | --- |
+| Docs Intelligence | `https://acme.example.com` | `Support teams cannot answer product questions from the latest docs fast enough.` |
+| Change Monitor | `https://signalforge.example.com` | `Product marketing needs to track competitor pricing and release page changes before weekly planning.` |
+| Account Research Brief | `https://northstar.example.com` | `Sales needs a sharper account research brief before qualification calls.` |
+
+The same scenarios are recorded in `docs/fixtures/seeded-scenarios.json` so
+browser tests and live walkthroughs stay aligned.
+
+## E2E Verification
+
+The Playwright happy path covers submit -> routed result -> preview -> export
+availability in fixture mode:
+
+```bash
+npm run test:e2e
+```
+
+The script pins temp and browser cache paths to `/tmp` for WSL. If the Chromium
+runtime is missing, install it once from WSL:
+
+```bash
+TMPDIR=/tmp TMP=/tmp TEMP=/tmp PLAYWRIGHT_BROWSERS_PATH=/tmp/ms-playwright npx playwright install chromium
+```
+
 For a targeted verification run:
 
 ```bash
@@ -144,16 +179,18 @@ npm run test:run -- tests/integration/docs-intelligence.test.ts tests/integratio
 npm run test:run -- tests/integration/change-monitor.test.ts
 npm run test:run -- tests/integration/account-research.test.ts
 npm run test:run -- tests/integration/firecrawl-adapter.test.ts
+npm run test:e2e
 ```
 
 ## Verification
 
-The current Task 11 slice passes:
+The current Task 12 slice passes:
 
 - `npm run build`
 - `npm run lint`
 - `npm run typecheck`
 - `npm run test:run`
+- `npm run test:e2e`
 
 ## Repository Notes
 
@@ -164,4 +201,4 @@ The current Task 11 slice passes:
 - The Account Research preview adds a dedicated motion-rich research surface at `components/account-research-preview.tsx`
 - The Firecrawl adapter lives under `lib/firecrawl/` and exposes both live and fixture-backed loading paths
 - ZIP export lives under `app/api/export/route.ts`, `lib/generation/build-export.ts`, and `components/export-button.tsx`
-- Template-specific vertical slices, the live adapter, and ZIP export are complete through Task 11; the next step is seeded E2E coverage and final polish
+- Seeded e2e coverage lives under `e2e/` with Playwright config in `playwright.config.ts`

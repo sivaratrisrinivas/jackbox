@@ -1,0 +1,25 @@
+{
+  "scenarios": [
+    {
+      "name": "Docs Intelligence",
+      "companyUrl": "https://acme.example.com",
+      "painPoint": "Support teams cannot answer product questions from the latest docs fast enough.",
+      "expectedFixture": "acme-docs",
+      "expectedTemplate": "docs-intelligence"
+    },
+    {
+      "name": "Change Monitor",
+      "companyUrl": "https://signalforge.example.com",
+      "painPoint": "Product marketing needs to track competitor pricing and release page changes before weekly planning.",
+      "expectedFixture": "change-monitor",
+      "expectedTemplate": "change-monitor"
+    },
+    {
+      "name": "Account Research Brief",
+      "companyUrl": "https://northstar.example.com",
+      "painPoint": "Sales needs a sharper account research brief before qualification calls.",
+      "expectedFixture": "account-research",
+      "expectedTemplate": "account-research"
+    }
+  ]
+}

@@ -340,14 +340,14 @@ Project scaffold + scripts
 **Description:** Lock in a founder-safe demo flow with seeded scenarios, end-to-end verification, and repo documentation so the project is ready for implementation review and live walkthroughs.
 
 **Acceptance criteria:**
-- [ ] A Playwright happy-path test covers submit -> routed result -> preview -> export availability.
-- [ ] The repo README explains how to run Jackbox in fixture mode and live mode.
-- [ ] Seeded example scenarios exist for one prospect per template and are easy to demo repeatedly.
+- [x] A Playwright happy-path test covers submit -> routed result -> preview -> export availability.
+- [x] The repo README explains how to run Jackbox in fixture mode and live mode.
+- [x] Seeded example scenarios exist for one prospect per template and are easy to demo repeatedly.
 
 **Verification:**
-- [ ] Tests pass: `npm run test:e2e`
-- [ ] Build succeeds: `npm run build`
-- [ ] Manual check: a teammate can follow the README and run a seeded demo without extra explanation
+- [x] Tests pass: `npm run test:e2e`
+- [x] Build succeeds: `npm run build`
+- [x] Manual check: a teammate can follow the README and run a seeded demo without extra explanation
 
 **Dependencies:** Tasks 10, 11
 
@@ -361,10 +361,10 @@ Project scaffold + scripts
 **Estimated scope:** Medium
 
 ### Checkpoint: Complete
-- [ ] All success criteria from the spec are covered by implemented tasks
-- [ ] The app builds, typechecks, and passes unit, integration, and E2E tests
-- [ ] A founder can generate and export three seeded prospect demos reliably
-- [ ] The team can review the MVP without hidden scope or undefined contracts
+- [x] All success criteria from the spec are covered by implemented tasks
+- [x] The app builds, typechecks, and passes unit, integration, and E2E tests
+- [x] A founder can generate and export three seeded prospect demos reliably
+- [x] The team can review the MVP without hidden scope or undefined contracts
 
 ## Parallelization Opportunities
 - After **Task 6**, **Tasks 7, 8, and 9** can be implemented in parallel because they share the same `DemoPackage` contract but own separate template files.
