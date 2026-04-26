@@ -6,13 +6,11 @@ package with a routed template, rationale, provenance, and exportable artifacts.
 
 ## Current Status
 
-The repo is now through Task 10. A founder can submit a prospect brief, receive
-a normalized package manifest, and see source-linked docs answers, tracked-page
-monitoring summaries, or a compact account research brief with grounded team
-context, provenance, architecture notes, credit estimates, and template-specific
-package files rendered from the same contract. Jackbox now supports a bounded
-live Firecrawl adapter when credentials are present and cleanly falls back to
-fixtures when live mode is unavailable or fails.
+The repo is now through Task 11. A founder can submit a prospect brief, receive
+a tailored demo package, preview the selected template, and download a ZIP file
+with the README, template files, and metadata that match the preview. Jackbox can
+use live Firecrawl data when credentials are present, and it can fall back to
+fixtures so demos and tests stay reliable.
 
 Completed:
 - Task 1: bootstrap the Next.js app shell
@@ -25,9 +23,10 @@ Completed:
 - Task 8: implement the Change Monitor template slice
 - Task 9: implement the Account Research template slice
 - Task 10: add the Firecrawl live adapter with bounded fallback behavior
+- Task 11: implement ZIP export and package assembly
 
 Next in sequence:
-- Task 11: implement ZIP export and package assembly
+- Task 12: add seeded E2E demos, README guidance, and final polish
 
 ## Stack
 
@@ -56,7 +55,51 @@ Next in sequence:
 - Account Research generator that returns concise pricing, product, customer, and hiring signals with a pre-call brief and exportable README/JSON artifacts
 - Firecrawl mode resolution with `auto`, `fixture`, and `live` behavior plus a bounded live crawl adapter
 - Fixture fallback messaging in the result surface so the active data source is visible to the founder
+- ZIP export from the result screen, including a plain README, structured metadata, and the curated files for the chosen template
 - Unit and integration coverage for contract validation, fixture parsing, routing, credit estimates, route orchestration, the intake form flow, the demo preview renderer, the live adapter, and the Docs Intelligence, Change Monitor, and Account Research slices
+
+## ZIP Export: What, Why, and How
+
+### What
+
+When a preview finishes, the result screen shows a `Download ZIP` button. That
+ZIP contains:
+
+- `README.md`: a short explanation of the generated demo
+- `metadata/demo-package.json`: the full structured package behind the preview
+- Template files such as `docs-intelligence/README.md`,
+  `change-monitor/monitor.json`, or `account-research/brief.json`
+
+The export uses the package that Jackbox already generated. It does not invent a
+new app or create files outside the curated template list.
+
+### Why
+
+The preview is useful during a sales call, but founders also need something they
+can inspect, share, and keep. The ZIP gives them that handoff without making the
+generated demo sound more complete than it is. It keeps the sources, routing
+reason, credit estimate, and template files together in one portable archive.
+
+### How
+
+Run the app, generate a preview, then click `Download ZIP` in the result panel.
+
+```bash
+npm run dev
+```
+
+For a repeatable local demo, use fixture mode:
+
+```bash
+export JACKBOX_FIRECRAWL_MODE=fixture
+npm run dev
+```
+
+To test the export route directly:
+
+```bash
+npm run test:run -- tests/integration/export-route.test.ts tests/integration/demo-preview.test.tsx
+```
 
 ## Commands
 
@@ -96,6 +139,7 @@ npm run dev
 For a targeted verification run:
 
 ```bash
+npm run test:run -- tests/integration/export-route.test.ts tests/integration/demo-preview.test.tsx
 npm run test:run -- tests/integration/docs-intelligence.test.ts tests/integration/demo-preview.test.tsx
 npm run test:run -- tests/integration/change-monitor.test.ts
 npm run test:run -- tests/integration/account-research.test.ts
@@ -104,7 +148,7 @@ npm run test:run -- tests/integration/firecrawl-adapter.test.ts
 
 ## Verification
 
-The current Task 10 slice passes:
+The current Task 11 slice passes:
 
 - `npm run build`
 - `npm run lint`
@@ -119,4 +163,5 @@ The current Task 10 slice passes:
 - Shared preview components live under `components/demo-preview.tsx`, `components/result-summary.tsx`, and `components/source-provenance.tsx`
 - The Account Research preview adds a dedicated motion-rich research surface at `components/account-research-preview.tsx`
 - The Firecrawl adapter lives under `lib/firecrawl/` and exposes both live and fixture-backed loading paths
-- Template-specific vertical slices and the live adapter are complete through Task 10; the next step is ZIP export
+- ZIP export lives under `app/api/export/route.ts`, `lib/generation/build-export.ts`, and `components/export-button.tsx`
+- Template-specific vertical slices, the live adapter, and ZIP export are complete through Task 11; the next step is seeded E2E coverage and final polish
