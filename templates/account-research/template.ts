@@ -1,4 +1,9 @@
 import type { ProspectFixture } from "@/lib/firecrawl/fixtures";
+import {
+  extractRankedEvidence,
+  fallbackEvidence,
+  type RankedEvidence,
+} from "@/lib/generation/evidence";
 import type { ProspectInput } from "@/lib/validation/prospect";
 
 export interface AccountResearchSignal {
@@ -19,27 +24,6 @@ export interface AccountResearchPreview {
   teamWhyItMatters: string;
   discoveryAngles: string[];
   signals: AccountResearchSignal[];
-}
-
-const PREFERRED_PAGE_TYPES = ["pricing", "product", "customers", "jobs", "careers", "home"];
-
-function firstMeaningfulLine(markdown: string) {
-  return (
-    markdown
-      .split("\n")
-      .map((line) => line.replace(/^#+\s*/, "").trim())
-      .find((line) => line.length > 0) ?? "Public company context is available for review."
-  );
-}
-
-function uniqueOrderedPages(fixture: ProspectFixture) {
-  const prioritizedPages = PREFERRED_PAGE_TYPES.flatMap((pageType) =>
-    fixture.pages.find((page) => page.pageType === pageType) ?? [],
-  );
-
-  const additionalPages = fixture.pages.filter((page) => !prioritizedPages.includes(page));
-
-  return [...prioritizedPages, ...additionalPages];
 }
 
 function signalLabel(pageType?: string) {
@@ -63,23 +47,23 @@ function signalLabel(pageType?: string) {
 }
 
 function insightForPage(
-  page: ProspectFixture["pages"][number],
+  evidenceItem: RankedEvidence,
   evidence: string,
   painPoint: string,
 ) {
-  if (page.pageType === "pricing") {
+  if (evidenceItem.pageType === "pricing") {
     return `"${evidence}" suggests a rollout that can start lean and expand with coverage, which gives the seller a credible ROI path for "${painPoint}".`;
   }
 
-  if (page.pageType === "product") {
+  if (evidenceItem.pageType === "product") {
     return `"${evidence}" makes the right story a shared account workspace, not a generic crawl demo, so the preview feels tailored to how the buyer already works.`;
   }
 
-  if (page.pageType === "customers") {
+  if (evidenceItem.pageType === "customers") {
     return `"${evidence}" shows the prospect already values faster pre-call research, which sharpens the discovery angle for the brief.`;
   }
 
-  if (page.pageType === "jobs" || page.pageType === "careers") {
+  if (evidenceItem.pageType === "jobs" || evidenceItem.pageType === "careers") {
     return `"${evidence}" signals more complex buying cycles ahead, so keeping account context fresh becomes more valuable to the revenue team.`;
   }
 
@@ -90,18 +74,31 @@ export function buildAccountResearchPreview(
   input: ProspectInput,
   fixture: ProspectFixture,
 ): AccountResearchPreview {
-  const signalPages = uniqueOrderedPages(fixture).slice(0, 4);
-  const signals = signalPages.map((page) => {
-    const evidence = firstMeaningfulLine(page.markdown);
-
-    return {
-      label: signalLabel(page.pageType),
-      sourceLabel: page.title,
-      sourceUrl: page.url,
-      evidence,
-      insight: insightForPage(page, evidence, input.painPoint),
-    };
+  const evidence = extractRankedEvidence({
+    input,
+    fixture,
+    templateId: "account-research",
+    limit: 8,
   });
+  const usefulEvidence = evidence.length > 0 ? evidence : fallbackEvidence(fixture);
+  const seenUrls = new Set<string>();
+  const signals = usefulEvidence
+    .filter((item) => {
+      if (seenUrls.has(item.url)) {
+        return false;
+      }
+
+      seenUrls.add(item.url);
+      return true;
+    })
+    .slice(0, 4)
+    .map((item) => ({
+      label: signalLabel(item.pageType),
+      sourceLabel: item.label,
+      sourceUrl: item.url,
+      evidence: item.text,
+      insight: insightForPage(item, item.text, input.painPoint),
+    }));
 
   const pricingSignal = signals.find((signal) => signal.label === "Pricing model");
   const productSignal = signals.find((signal) => signal.label === "Product workflow");

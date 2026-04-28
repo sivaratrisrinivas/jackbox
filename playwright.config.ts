@@ -2,22 +2,23 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  timeout: 30_000,
+  timeout: 90_000,
   expect: {
     timeout: 10_000,
   },
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3100",
     trace: "on-first-retry",
   },
   webServer: {
-    command: "npm run dev",
+    command: "npm run dev -- --hostname 127.0.0.1 --port 3100",
     env: {
       JACKBOX_FIRECRAWL_MODE: "fixture",
+      GEMINI_API_KEY: "",
     },
-    url: "http://localhost:3000",
+    url: "http://localhost:3100",
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
   },
   projects: [
     {

@@ -22,9 +22,9 @@ export function SourceProvenance({ demoPackage }: SourceProvenanceProps) {
       </div>
 
       <div className="mt-5 space-y-3">
-        {demoPackage.provenance.map((source) => (
+        {demoPackage.provenance.map((source, index) => (
           <a
-            key={source.url}
+            key={`${source.url}-${index}`}
             href={source.url}
             className="group block rounded-[1.25rem] border border-white/8 bg-black/25 p-4 transition duration-500 hover:border-sky-200/35 hover:bg-sky-200/8"
           >

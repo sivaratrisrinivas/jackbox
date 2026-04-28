@@ -259,9 +259,9 @@ export function DemoPreview({ demoPackage }: DemoPreviewProps) {
                 </h5>
                 <p className="mt-3 text-sm leading-7 text-zinc-200">{answer.answer}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {answer.citations.map((citation) => (
+                  {answer.citations.map((citation, index) => (
                     <a
-                      key={citation.url}
+                      key={`${citation.url}-${index}`}
                       href={citation.url}
                       className="rounded-full border border-white/10 bg-black/25 px-3 py-1.5 text-xs text-sky-100 transition duration-500 hover:border-sky-100/35 hover:bg-sky-200/10"
                     >

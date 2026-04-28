@@ -1,7 +1,9 @@
 import type { ProspectFixture } from "@/lib/firecrawl/fixtures";
+import { createPipelineLogger } from "@/lib/observability/pipeline-log";
 const DEFAULT_FIRECRAWL_BASE_URL = "https://api.firecrawl.dev/v2";
 const DEFAULT_POLL_INTERVAL_MS = 1_500;
-const DEFAULT_TIMEOUT_MS = 45_000;
+const DEFAULT_TIMEOUT_MS = Number(process.env.FIRECRAWL_CRAWL_TIMEOUT_MS ?? 20_000);
+const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
 
 interface FirecrawlStartCrawlResponse {
   success?: boolean;
@@ -40,6 +42,7 @@ export interface CreateFirecrawlClientOptions {
   fetch?: typeof fetch;
   pollIntervalMs?: number;
   timeoutMs?: number;
+  requestTimeoutMs?: number;
 }
 
 function slugify(value: string) {
@@ -186,8 +189,16 @@ async function requestFirecrawl<T>(
   input: string,
   init: RequestInit,
   description: string,
+  timeoutMs: number,
 ) {
-  const response = await fetchImpl(input, init);
+  const signal =
+    typeof AbortSignal !== "undefined" && "timeout" in AbortSignal
+      ? AbortSignal.timeout(timeoutMs)
+      : undefined;
+  const response = await fetchImpl(input, {
+    ...init,
+    signal: init.signal ?? signal,
+  });
   const payload = await parseResponsePayload(response);
 
   if (!response.ok) {
@@ -253,6 +264,7 @@ export function createFirecrawlClient({
   fetch: fetchImpl = globalThis.fetch,
   pollIntervalMs = DEFAULT_POLL_INTERVAL_MS,
   timeoutMs = DEFAULT_TIMEOUT_MS,
+  requestTimeoutMs = DEFAULT_REQUEST_TIMEOUT_MS,
 }: CreateFirecrawlClientOptions): FirecrawlClient {
   if (!apiKey) {
     throw new Error("Firecrawl client requires an API key.");
@@ -262,8 +274,14 @@ export function createFirecrawlClient({
     throw new Error("Global fetch is not available in this runtime.");
   }
 
+  const logger = createPipelineLogger("firecrawl");
+
   return {
     async loadProspectData({ companyUrl, crawlTargets }) {
+      logger.step("crawl:start", {
+        host: new URL(companyUrl).hostname,
+        crawlTargets: crawlTargets.length,
+      });
       const includePaths = buildIncludePathPatterns(companyUrl, crawlTargets);
       const company = new URL(companyUrl);
       const originUrl = `${company.origin}/`;
@@ -292,16 +310,23 @@ export function createFirecrawlClient({
           }),
         },
         "Firecrawl crawl start",
+        requestTimeoutMs,
       );
 
       if (!startPayload.id) {
         throw new Error("Firecrawl crawl start did not return a crawl id.");
       }
+      logger.step("crawl:started", {
+        crawlId: startPayload.id,
+        includePaths: includePaths.length,
+      });
 
       const deadline = Date.now() + timeoutMs;
       let statusPayload: FirecrawlCrawlStatusResponse | null = null;
+      let pollCount = 0;
 
-      while (Date.now() <= deadline) {
+      while (Date.now() <= deadline || pollCount < 2) {
+        pollCount += 1;
         statusPayload = await requestFirecrawl<FirecrawlCrawlStatusResponse>(
           fetchImpl,
           `${baseUrl}/crawl/${startPayload.id}`,
@@ -312,7 +337,13 @@ export function createFirecrawlClient({
             },
           },
           "Firecrawl crawl status",
+          requestTimeoutMs,
         );
+        logger.step("crawl:poll", {
+          status: statusPayload.status ?? "unknown",
+          documents: statusPayload.data?.length ?? 0,
+          hasNext: Boolean(statusPayload.next),
+        });
 
         if (statusPayload.status === "completed") {
           const documents = [...collectDocuments(statusPayload)];
@@ -329,26 +360,41 @@ export function createFirecrawlClient({
                 },
               },
               "Firecrawl crawl pagination",
+              requestTimeoutMs,
             );
 
             documents.push(...collectDocuments(nextPayload));
             nextUrl = nextPayload.next;
+            logger.step("crawl:pagination", {
+              documents: documents.length,
+              hasNext: Boolean(nextUrl),
+            });
           }
 
-          return normalizeLiveDocuments(
+          const fixture = normalizeLiveDocuments(
             companyUrl,
             documents,
             statusPayload.creditsUsed,
           );
+          logger.step("crawl:normalized", {
+            pages: fixture.pages.length,
+            creditsUsed: statusPayload.creditsUsed,
+          });
+
+          return fixture;
         }
 
         if (statusPayload.status === "failed") {
+          logger.error("crawl:failed", new Error("Firecrawl reported a failed crawl."));
           throw new Error("Firecrawl reported a failed crawl for the bounded prospect load.");
         }
 
         await sleep(pollIntervalMs);
       }
 
+      logger.error("crawl:timeout", new Error("Firecrawl crawl timed out."), {
+        timeoutMs,
+      });
       throw new Error(
         `Firecrawl crawl timed out after ${timeoutMs}ms while waiting for bounded prospect pages.`,
       );

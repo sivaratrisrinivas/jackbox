@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 * {
@@ -19,13 +19,10 @@ html {
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at top, rgba(56, 189, 248, 0.2), transparent 28%),
-    radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.14), transparent 25%),
-    linear-gradient(180deg, #040712 0%, #070b15 45%, #03060d 100%);
-  color: #f4f4f5;
+  background: #f2f3ef;
+  color: #171a1c;
   font-family:
-    "Cabinet Grotesk",
+    Geist,
     Outfit,
     "Avenir Next",
     "Segoe UI",

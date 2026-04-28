@@ -24,7 +24,7 @@ describe("Account Research template slice", () => {
     expect(demoPackage.preview).toMatchObject({
       fixtureId: "account-research",
       sourcePageCount: 5,
-      primarySourceTitle: "Pricing",
+      primarySourceTitle: "Customers",
       teamWhyItMatters: expect.stringContaining("Pricing"),
     });
     expect(demoPackage.files).toEqual(
@@ -44,13 +44,13 @@ describe("Account Research template slice", () => {
 
     render(createElement(ResultShell, { status: "success", result: demoPackage }));
 
-    expect(screen.getByText(/Read the account/i)).toBeTruthy();
-    expect(screen.getByText(/Why your team cares/i)).toBeTruthy();
-    expect(screen.getByText(/Signal panels/i)).toBeTruthy();
-    expect(screen.getByText(/Signal ledger/i)).toBeTruthy();
-    expect(screen.getByText(/Call opener/i)).toBeTruthy();
-    expect(screen.getByText(/Discovery prep/i)).toBeTruthy();
-    expect(screen.getByText("account-research/README.md")).toBeTruthy();
-    expect(screen.getByText("account-research/brief.json")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Northstar Labs demo room is ready/i })).toBeTruthy();
+    expect(screen.getAllByText(/Account Research/i).length).toBeGreaterThan(0);
+    expect(
+      screen.getByText(/A pre-call workspace built from public account signals/i),
+    ).toBeTruthy();
+    expect(screen.getByText(/Sources/i)).toBeTruthy();
+    expect(screen.getAllByText("Pricing").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Download demo package/i })).toBeTruthy();
   });
 });

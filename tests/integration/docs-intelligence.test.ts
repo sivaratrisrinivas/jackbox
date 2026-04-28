@@ -26,7 +26,7 @@ describe("Docs Intelligence template slice", () => {
     expect(demoPackage.preview).toMatchObject({
       fixtureId: "docs-intelligence",
       sourcePageCount: 3,
-      primarySourceTitle: "Getting Started",
+      primarySourceTitle: "Answer Workflows",
     });
     expect(demoPackage.files).toEqual(
       expect.arrayContaining([
@@ -38,15 +38,17 @@ describe("Docs Intelligence template slice", () => {
         expect.objectContaining({
           path: "docs-intelligence/answers.json",
           mediaType: "application/json",
-          content: expect.stringContaining("https://acme.example.com/docs/getting-started"),
+          content: expect.stringContaining("https://acme.example.com/docs/answers"),
         }),
       ]),
     );
-    expect(screen.getByText(/How can Acme Cloud answer this support workflow/i)).toBeTruthy();
-    expect(screen.getByText(/Every generated answer keeps the source URL/i)).toBeTruthy();
-    expect(screen.getAllByText("Getting Started").length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: /Acme Cloud demo room is ready/i })).toBeTruthy();
+    expect(screen.getByText(/Docs Intelligence/i)).toBeTruthy();
+    expect(
+      screen.getByText(/Citation-backed answers from the prospect's own docs/i),
+    ).toBeTruthy();
+    expect(screen.getByText(/Sources/i)).toBeTruthy();
     expect(screen.getAllByText("Answer Workflows").length).toBeGreaterThan(0);
-    expect(screen.getByText("docs-intelligence/README.md")).toBeTruthy();
-    expect(screen.getByText("docs-intelligence/answers.json")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Download demo package/i })).toBeTruthy();
   });
 });

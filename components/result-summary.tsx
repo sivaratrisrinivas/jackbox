@@ -1,9 +1,11 @@
 import type { DemoPackage } from "@/lib/generation/demo-package";
+import { getDemoStory } from "@/lib/generation/demo-story";
+import { getSolutionEngineerBrief } from "@/lib/generation/solution-engineer-brief";
 
 const TEMPLATE_NAMES: Record<DemoPackage["templateId"], string> = {
-  "docs-intelligence": "Docs intelligence",
-  "change-monitor": "Change monitor",
-  "account-research": "Account research",
+  "docs-intelligence": "Docs Intelligence",
+  "change-monitor": "Change Monitor",
+  "account-research": "Account Research",
 };
 
 function getPreviewString(demoPackage: DemoPackage, key: string) {
@@ -30,88 +32,104 @@ export interface ResultSummaryProps {
 export function ResultSummary({ demoPackage }: ResultSummaryProps) {
   const companyName = getCompanyName(demoPackage);
   const dataSource = getPreviewString(demoPackage, "dataSource");
-  const fallbackReason = getPreviewString(demoPackage, "fallbackReason");
-  const sourceLabel = dataSource === "live" ? "Live crawl" : "Fixture preview";
-  const sourceClassName =
-    dataSource === "live"
-      ? "border-sky-200/20 bg-sky-300/12 text-sky-50"
-      : "border-amber-200/20 bg-amber-300/12 text-amber-50";
+  const sourceCount = demoPackage.provenance.length;
+  const primarySource = demoPackage.provenance[0];
+  const sourceLabel = dataSource === "live" ? "Live sources" : "Saved sources";
+  const story = getDemoStory(demoPackage.preview.story);
+  const solutionBrief = getSolutionEngineerBrief(demoPackage.preview.solutionBrief);
+  const workflow = solutionBrief?.inferredWorkflows[0];
+  const recommendedDemo = solutionBrief?.recommendedDemo;
 
   return (
-    <div className="rounded-[1.8rem] border border-white/10 bg-white/[0.055] p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-[0.22em] text-emerald-100/70">
-            Routed handoff
-          </p>
-          <h3 className="mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-white">
-            {companyName} is ready for a tailored Firecrawl walkthrough.
-          </h3>
+    <div className="border-b border-[#171a1c]/10 pb-8">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[#202326]/54">
+        <span className="font-semibold text-[#171a1c]">
+          {TEMPLATE_NAMES[demoPackage.templateId]}
+        </span>
+        <span aria-hidden="true">/</span>
+        <span>
+          {sourceLabel}
+        </span>
+        <span aria-hidden="true">/</span>
+        <span>
+          {sourceCount} sources
+        </span>
+      </div>
+
+      <h2 className="mt-5 max-w-4xl text-4xl font-semibold leading-tight text-[#171a1c] text-balance sm:text-5xl">
+        {companyName} demo room is ready.
+      </h2>
+
+      <p className="mt-4 max-w-3xl text-base leading-8 text-[#202326]/64 text-pretty">
+        {demoPackage.summary.headline}
+      </p>
+
+      {recommendedDemo ? (
+        <div className="mt-8 rounded-2xl border border-[#171a1c]/10 bg-white p-5 sm:p-6">
+          <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+            <div>
+              <p className="text-sm font-semibold text-[#315bff]">Recommended mini-POC</p>
+              <h3 className="mt-3 text-2xl font-semibold leading-tight text-[#171a1c] text-balance">
+                {recommendedDemo.title}
+              </h3>
+              <p className="mt-4 text-base leading-8 text-[#202326]/66 text-pretty">
+                {recommendedDemo.miniAppConcept}
+              </p>
+            </div>
+            <dl className="grid content-start gap-4">
+              {[
+                ["Workflow", workflow?.workflowName ?? demoPackage.summary.headline],
+                [
+                  "Team",
+                  workflow?.buyerTeam ??
+                    solutionBrief?.targetUsers.join(", ") ??
+                    "Sales engineering",
+                ],
+                ["Why Firecrawl", recommendedDemo.firecrawlValue],
+              ].map(([label, copy]) => (
+                <div key={label}>
+                  <dt className="text-sm font-semibold text-[#202326]/45">
+                    {label}
+                  </dt>
+                  <dd className="mt-1 text-sm leading-6 text-[#202326]/72">{copy}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="rounded-full border border-emerald-200/20 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-50">
-            {TEMPLATE_NAMES[demoPackage.templateId]}
-          </div>
-          <div
-            className={`rounded-full border px-4 py-2 text-sm font-medium ${sourceClassName}`}
-          >
-            {sourceLabel}
-          </div>
+      ) : story ? (
+        <div className="mt-8 rounded-2xl border border-[#171a1c]/10 bg-white p-5">
+          <p className="text-sm font-semibold text-[#315bff]">Sales story</p>
+          <ol className="mt-4 grid gap-4">
+            {[
+              ["Outcome", demoPackage.summary.headline],
+              ["Pain", story.buyerProblem],
+              ["Move", story.firecrawlMove],
+              ["Proof", story.proofPoint],
+              ["Talk track", story.talkTrack],
+              ["Next step", story.nextStep],
+            ].map(([label, copy]) => (
+              <li key={label} className="grid gap-2 sm:grid-cols-[7rem_1fr]">
+                <span className="text-sm text-[#202326]/42">{label}</span>
+                <span className="text-sm leading-7 text-[#202326]/70">{copy}</span>
+              </li>
+            ))}
+          </ol>
         </div>
-      </div>
+      ) : (
+        <div className="mt-8 rounded-2xl border border-[#171a1c]/10 bg-white p-5">
+          <p className="text-sm text-[#202326]/42">Preview</p>
+          <p className="mt-2 text-base leading-7 text-[#202326]/70">
+            {demoPackage.summary.headline}
+          </p>
+        </div>
+      )}
 
-      <div className="mt-7 grid gap-4 md:grid-cols-2">
-        <article className="rounded-[1.3rem] border border-white/10 bg-black/25 p-4">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/45">
-            Prospect URL
-          </p>
-          <p className="mt-3 break-words text-sm leading-7 text-zinc-200">
-            {demoPackage.input.companyUrl}
-          </p>
-        </article>
-        <article className="rounded-[1.3rem] border border-white/10 bg-black/25 p-4">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/45">
-            Buyer pain
-          </p>
-          <p className="mt-3 text-sm leading-7 text-zinc-200">
-            {demoPackage.input.painPoint}
-          </p>
-        </article>
+      <div className="mt-5 flex flex-wrap gap-2 text-sm text-[#202326]/48">
+        <span>Primary: {primarySource?.label ?? "Public website"}</span>
+        <span aria-hidden="true">/</span>
+        <span>{demoPackage.creditEstimate.totalCredits} credits estimated</span>
       </div>
-
-      <div className="mt-4 grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
-        <article className="rounded-[1.3rem] border border-white/10 bg-black/25 p-4">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/45">
-            Routing rationale
-          </p>
-          <p className="mt-3 text-sm leading-7 text-zinc-200">
-            {demoPackage.routedPlan.reason}
-          </p>
-        </article>
-        <article className="rounded-[1.3rem] border border-emerald-200/15 bg-emerald-400/10 p-4">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-emerald-100/70">
-            Credit estimate
-          </p>
-          <div className="mt-3 flex items-end gap-3">
-            <p className="text-5xl font-semibold tracking-tight text-white">
-              {demoPackage.creditEstimate.totalCredits}
-            </p>
-            <p className="pb-2 text-sm text-emerald-50/70">credits</p>
-          </div>
-          <p className="mt-3 text-sm leading-7 text-zinc-100">
-            {demoPackage.creditEstimate.rationale}
-          </p>
-        </article>
-      </div>
-
-      {fallbackReason ? (
-        <article className="mt-4 rounded-[1.3rem] border border-amber-200/15 bg-amber-300/8 p-4">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-amber-100/75">
-            Source handoff
-          </p>
-          <p className="mt-3 text-sm leading-7 text-zinc-100">{fallbackReason}</p>
-        </article>
-      ) : null}
     </div>
   );
 }

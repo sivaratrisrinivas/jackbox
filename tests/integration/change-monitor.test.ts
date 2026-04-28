@@ -26,7 +26,7 @@ describe("Change Monitor template slice", () => {
     expect(demoPackage.preview).toMatchObject({
       fixtureId: "change-monitor",
       sourcePageCount: 4,
-      primarySourceTitle: "Pricing",
+      primarySourceTitle: "Product",
     });
     expect(demoPackage.files).toEqual(
       expect.arrayContaining([
@@ -42,10 +42,13 @@ describe("Change Monitor template slice", () => {
         }),
       ]),
     );
-    expect(screen.getByText(/Pricing copy and plan packaging/i)).toBeTruthy();
-    expect(screen.getByText(/Release language is ready to become an alert/i)).toBeTruthy();
-    expect(screen.getAllByText(/Monitoring value/i).length).toBeGreaterThan(0);
-    expect(screen.getByText("change-monitor/README.md")).toBeTruthy();
-    expect(screen.getByText("change-monitor/tracked-pages.json")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /SignalForge demo room is ready/i })).toBeTruthy();
+    expect(screen.getByText(/Change Monitor/i)).toBeTruthy();
+    expect(
+      screen.getByText(/A focused monitor for public product and pricing changes/i),
+    ).toBeTruthy();
+    expect(screen.getByText(/Sources/i)).toBeTruthy();
+    expect(screen.getAllByText("Pricing").length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: /Download demo package/i })).toBeTruthy();
   });
 });

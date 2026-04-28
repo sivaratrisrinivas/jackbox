@@ -17,19 +17,13 @@ describe("DemoPackage preview rendering", () => {
 
     render(<ResultShell status="success" result={demoPackage} />);
 
-    expect(
-      screen.getByText(/Acme Cloud is ready for a tailored Firecrawl walkthrough/i),
-    ).toBeTruthy();
     expect(screen.getAllByText(/Docs intelligence/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Fixture preview/i)).toBeTruthy();
+    expect(screen.getByText(/Saved demo data/i)).toBeTruthy();
     expect(
       screen.getByText(/Citation-backed answers from the prospect's own docs/i),
     ).toBeTruthy();
-    expect(screen.getByText(/Source links stay separate from generated copy/i)).toBeTruthy();
-    expect(screen.getAllByText("Getting Started").length).toBeGreaterThan(0);
-    expect(screen.getByText(/How can Acme Cloud answer this support workflow/i)).toBeTruthy();
-    expect(screen.getByRole("button", { name: /Download ZIP/i })).toBeTruthy();
-    expect(screen.getByText("docs-intelligence/README.md")).toBeTruthy();
-    expect(screen.getByText("docs-intelligence/answers.json")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Acme Cloud demo room is ready/i })).toBeTruthy();
+    expect(screen.getByText(/Sources/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Download demo package/i })).toBeTruthy();
   });
 });

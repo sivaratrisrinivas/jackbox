@@ -10,9 +10,17 @@ import {
   type DemoFile,
   type DemoSource,
 } from "@/lib/generation/demo-package";
+import { buildDemoStory } from "@/lib/generation/demo-story";
+import { extractRankedEvidence, fallbackEvidence } from "@/lib/generation/evidence";
+import { buildSolutionEngineerBrief } from "@/lib/generation/solution-engineer-brief";
 import { generateAccountResearchTemplate } from "@/lib/generation/templates/account-research";
 import { generateChangeMonitorTemplate } from "@/lib/generation/templates/change-monitor";
 import { generateDocsIntelligenceTemplate } from "@/lib/generation/templates/docs-intelligence";
+import {
+  createOptionalDemoStoryEnhancer,
+  createOptionalSolutionBriefEnhancer,
+} from "@/lib/llm/demo-story-enhancer";
+import { createPipelineLogger } from "@/lib/observability/pipeline-log";
 import { routeProspect } from "@/lib/router/route-prospect";
 import { ProspectInputSchema, type ProspectInput } from "@/lib/validation/prospect";
 
@@ -47,11 +55,22 @@ function humanizeHost(companyUrl: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-function buildProvenance(fixture: ProspectFixture): DemoSource[] {
-  return fixture.pages.map((page) => ({
-    label: page.title,
-    url: page.url,
-    excerpt: page.markdown.split("\n").find((line) => line.trim().length > 0),
+function buildProvenance(
+  input: ProspectInput,
+  fixture: ProspectFixture,
+  routedPlan: ReturnType<typeof routeProspect>,
+): DemoSource[] {
+  const evidence = extractRankedEvidence({
+    input,
+    fixture,
+    templateId: routedPlan.templateId,
+  });
+  const usefulEvidence = evidence.length > 0 ? evidence : fallbackEvidence(fixture);
+
+  return usefulEvidence.map((item) => ({
+    label: item.label,
+    url: item.url,
+    excerpt: item.text,
   }));
 }
 
@@ -90,12 +109,66 @@ export async function generateDemoPackage(
   input: ProspectInput,
   dataLoader: ProspectDataLoader = createProspectDataLoader(),
 ): Promise<DemoPackage> {
+  const logger = createPipelineLogger("package");
   const parsedInput = ProspectInputSchema.parse(input);
+  logger.step("input:parsed", {
+    host: new URL(parsedInput.companyUrl).hostname,
+  });
+  logger.step("data:load:start");
   const fixture = await dataLoader.loadProspectData(parsedInput);
+  logger.step("data:load:complete", {
+    fixtureId: fixture.fixtureId,
+    pages: fixture.pages.length,
+    dataSource: fixture.dataSource ?? "unknown",
+  });
   const routedPlan = routeProspect(parsedInput, fixture);
+  logger.step("route:complete", {
+    templateId: routedPlan.templateId,
+    crawlTargets: routedPlan.crawlTargets.length,
+  });
   const creditEstimate = estimateCredits(routedPlan);
+  logger.step("credits:estimated", {
+    totalCredits: creditEstimate.totalCredits,
+  });
   const companyName = fixture.company.name || humanizeHost(parsedInput.companyUrl);
   const now = new Date().toISOString();
+  const baseSolutionBrief = buildSolutionEngineerBrief({
+    input: parsedInput,
+    fixture,
+    routedPlan,
+  });
+  logger.step("solution-brief:deterministic", {
+    surfaces: baseSolutionBrief.publicSurfaces.length,
+    workflow: baseSolutionBrief.inferredWorkflows[0]?.workflowName,
+  });
+  const solutionBriefEnhancer = createOptionalSolutionBriefEnhancer();
+  logger.step("solution-brief:llm", {
+    enabled: Boolean(solutionBriefEnhancer),
+  });
+  const solutionBrief = solutionBriefEnhancer
+    ? await solutionBriefEnhancer(baseSolutionBrief)
+    : baseSolutionBrief;
+  logger.step("solution-brief:complete", {
+    enhanced: solutionBrief !== baseSolutionBrief,
+    miniApp: solutionBrief.recommendedDemo.title,
+  });
+  const baseStory = buildDemoStory({
+    input: parsedInput,
+    fixture,
+    routedPlan,
+    solutionBrief,
+  });
+  logger.step("story:deterministic", {
+    evidenceCount: baseStory.evidence.length,
+  });
+  const storyEnhancer = createOptionalDemoStoryEnhancer();
+  logger.step("story:llm", {
+    enabled: Boolean(storyEnhancer),
+  });
+  const story = storyEnhancer ? await storyEnhancer(baseStory) : baseStory;
+  logger.step("story:complete", {
+    enhanced: story !== baseStory,
+  });
   const templateResult =
     routedPlan.templateId === "docs-intelligence"
       ? generateDocsIntelligenceTemplate(parsedInput, fixture)
@@ -107,6 +180,9 @@ export async function generateDemoPackage(
             preview: buildFallbackPreview(parsedInput, fixture, companyName),
             files: buildFallbackFiles(),
           };
+  logger.step("template:built", {
+    files: templateResult.files.length,
+  });
 
   return DemoPackageSchema.parse({
     id: `demo_${slugify(companyName)}_${routedPlan.templateId}`,
@@ -121,10 +197,12 @@ export async function generateDemoPackage(
     },
     preview: {
       ...templateResult.preview,
+      solutionBrief,
+      story,
       dataSource: fixture.dataSource ?? "fixture",
       fallbackReason: fixture.fallbackReason,
     },
-    provenance: buildProvenance(fixture),
+    provenance: buildProvenance(parsedInput, fixture, routedPlan),
     creditEstimate,
     files: templateResult.files,
   });

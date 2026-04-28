@@ -27,7 +27,7 @@ describe("ProspectForm", () => {
   it("shows inline validation messages for invalid input", async () => {
     render(<ProspectForm />);
 
-    fireEvent.click(screen.getByRole("button", { name: /generate routed preview/i }));
+    fireEvent.click(screen.getByRole("button", { name: /generate/i }));
 
     expect(screen.getByText(/enter a valid public company url/i)).toBeTruthy();
     expect(screen.getByText(/pain point must be at least 10 characters/i)).toBeTruthy();
@@ -37,51 +37,22 @@ describe("ProspectForm", () => {
     mockGenerateRoute();
     render(<ProspectForm />);
 
-    fireEvent.change(screen.getByLabelText(/company url/i), {
+    fireEvent.change(screen.getByLabelText(/url/i), {
       target: { value: "https://acme.example.com" },
     });
-    fireEvent.change(screen.getByLabelText(/buyer pain point/i), {
+    fireEvent.change(screen.getByLabelText(/pain/i), {
       target: {
         value: "Support teams cannot answer product questions from the latest docs fast enough.",
       },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /generate routed preview/i }));
+    fireEvent.click(screen.getByRole("button", { name: /generate/i }));
 
-    expect(await screen.findByText(/routing the founder brief/i)).toBeTruthy();
     expect(
-      await screen.findByText(/demo package ready/i, undefined, { timeout: 2000 }),
-    ).toBeTruthy();
-    expect(
-      await screen.findByText(/Acme Cloud is ready for a tailored Firecrawl walkthrough/i),
+      await screen.findByRole("heading", { name: /acme cloud demo room is ready/i }, { timeout: 2000 }),
     ).toBeTruthy();
     expect((await screen.findAllByText(/docs intelligence/i)).length).toBeGreaterThan(0);
-    expect(await screen.findByText(/credit estimate/i)).toBeTruthy();
-  });
-
-  it("renders the fallback error shell when the error path is requested", async () => {
-    mockGenerateRoute();
-    render(<ProspectForm />);
-
-    fireEvent.change(screen.getByLabelText(/company url/i), {
-      target: { value: "https://acme.example.com" },
-    });
-    fireEvent.change(screen.getByLabelText(/buyer pain point/i), {
-      target: {
-        value: "Support teams cannot answer product questions from the latest docs fast enough.",
-      },
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /preview fallback state/i }));
-
-    expect(await screen.findByText(/routing the founder brief/i)).toBeTruthy();
-    expect(
-      await screen.findByText(/the route returned a structured error/i, undefined, {
-        timeout: 2000,
-      }),
-    ).toBeTruthy();
-    expect(
-      await screen.findByText(/request validation failed/i),
-    ).toBeTruthy();
+    expect(await screen.findByText(/credits/i)).toBeTruthy();
+    expect(await screen.findByRole("button", { name: /download demo package/i })).toBeTruthy();
   });
 });

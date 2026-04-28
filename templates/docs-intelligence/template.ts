@@ -1,4 +1,5 @@
 import type { ProspectFixture } from "@/lib/firecrawl/fixtures";
+import { extractRankedEvidence, fallbackEvidence } from "@/lib/generation/evidence";
 import type { ProspectInput } from "@/lib/validation/prospect";
 
 export interface DocsIntelligenceCitation {
@@ -23,20 +24,15 @@ export interface DocsIntelligencePreview {
   answers: DocsIntelligenceAnswer[];
 }
 
-function firstMeaningfulLine(markdown: string) {
-  return (
-    markdown
-      .split("\n")
-      .map((line) => line.replace(/^#+\s*/, "").trim())
-      .find((line) => line.length > 0) ?? "Source page content is available for review."
-  );
-}
-
-function citationForPage(page: ProspectFixture["pages"][number]) {
+function citationForEvidence(evidence: {
+  label: string;
+  url: string;
+  text: string;
+}) {
   return {
-    label: page.title,
-    url: page.url,
-    excerpt: firstMeaningfulLine(page.markdown),
+    label: evidence.label,
+    url: evidence.url,
+    excerpt: evidence.text,
   };
 }
 
@@ -44,20 +40,22 @@ export function buildDocsIntelligencePreview(
   input: ProspectInput,
   fixture: ProspectFixture,
 ): DocsIntelligencePreview {
-  const docsPages = fixture.pages.filter((page) => page.pageType === "docs");
-  const rankedPages = docsPages.length > 0 ? docsPages : fixture.pages;
-  const primaryPage = rankedPages[0];
-  const secondaryPage = rankedPages[1] ?? fixture.pages.find((page) => page !== primaryPage);
-  const primaryCitation = citationForPage(primaryPage);
-  const citations = secondaryPage
-    ? [primaryCitation, citationForPage(secondaryPage)]
-    : [primaryCitation];
+  const evidence = extractRankedEvidence({
+    input,
+    fixture,
+    templateId: "docs-intelligence",
+    limit: 3,
+  });
+  const usefulEvidence = evidence.length > 0 ? evidence : fallbackEvidence(fixture);
+  const primaryEvidence = usefulEvidence[0];
+  const primaryCitation = citationForEvidence(primaryEvidence);
+  const citations = usefulEvidence.slice(0, 2).map(citationForEvidence);
 
   return {
     companyName: fixture.company.name,
     fixtureId: fixture.fixtureId,
     sourcePageCount: fixture.pages.length,
-    primarySourceTitle: primaryPage.title,
+    primarySourceTitle: primaryEvidence.label,
     painPoint: input.painPoint,
     suggestedQuestions: [
       `How should a support teammate answer "${input.painPoint}"?`,
@@ -67,7 +65,7 @@ export function buildDocsIntelligencePreview(
     answers: [
       {
         question: `How can ${fixture.company.name} answer this support workflow?`,
-        answer: `${fixture.company.name} can start with ${primaryPage.title}, then cite the exact public page that explains the workflow instead of asking support teammates to summarize docs manually.`,
+        answer: `${fixture.company.name} can start with ${primaryEvidence.label}, then cite the exact public page that explains the workflow instead of asking support teammates to summarize docs manually.`,
         citations,
       },
       {
