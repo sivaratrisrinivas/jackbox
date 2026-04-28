@@ -62,6 +62,77 @@ call-ready artifact that makes a Firecrawl sales conversation sharper.
 11. Jackbox renders the output screen.
 12. The user can copy the call script or download the demo package.
 
+## Architecture At A Glance
+
+Jackbox is a single Next.js App Router application. It has no database and no
+auth in V1. State is request-scoped: the browser submits an input, the server
+returns a typed `DemoPackage`, and the browser renders or exports that package.
+
+The main flow is:
+
+```text
+components/prospect-form.tsx
+  -> POST /api/generate
+    -> ProspectInputSchema
+    -> createProspectDataLoader()
+      -> fixture loader, Firecrawl client, or direct fetch fallback
+    -> routeProspect()
+    -> estimateCredits()
+    -> extractRankedEvidence()
+    -> buildSolutionEngineerBrief()
+    -> buildDemoStory()
+    -> optional Gemini enhancement
+    -> selected template builder
+    -> DemoPackageSchema
+  -> components/result-shell.tsx
+    -> ResultSummary
+    -> DemoRoom
+      -> POST /api/export
+```
+
+The video path is separate:
+
+```text
+DemoPackage
+  -> POST /api/video
+    -> buildDemoVideoProps()
+    -> Remotion bundle + ProspectDemo composition
+    -> video/mp4 response
+```
+
+## Core Contract: DemoPackage
+
+`DemoPackage` is the main contract between routing, generation, UI, export, and
+video. It is defined in `lib/generation/demo-package.ts` and validated with Zod.
+
+Every generated package contains:
+
+1. `id`: stable generated package id.
+2. `templateId`: one of `docs-intelligence`, `change-monitor`, or `account-research`.
+3. `createdAt`: ISO timestamp.
+4. `input`: the validated company URL and buyer pain.
+5. `routedPlan`: selected template, explanation, and crawl targets.
+6. `summary`: headline, "why this matters", and architecture note.
+7. `preview`: template-specific payload plus story and solution brief.
+8. `provenance`: source labels, URLs, and excerpts.
+9. `creditEstimate`: rough crawl, extraction, and packaging estimate.
+10. `files`: exportable template files.
+
+When adding a new surface, prefer reading from `DemoPackage` rather than
+recomputing generation state in the UI.
+
+## Server Routes
+
+| Route | Method | Input | Output | Purpose |
+| --- | --- | --- | --- | --- |
+| `/api/generate` | `POST` | `ProspectInput` | `DemoPackage` JSON | Validates founder input and runs the full generation pipeline. |
+| `/api/export` | `POST` | `DemoPackage` | ZIP binary | Builds `README.md`, metadata, and template files into a downloadable archive. |
+| `/api/video` | `POST` | `DemoPackage` | MP4 binary | Renders the Remotion `ProspectDemo` composition from the generated package. |
+
+All routes return structured JSON errors for invalid JSON and validation
+failures. `/api/generate` also has a server timeout controlled by
+`JACKBOX_GENERATION_TIMEOUT_MS`.
+
 ## Data Loading Step By Step
 
 Jackbox can run in fixture, live, or automatic mode.
@@ -96,6 +167,41 @@ the same public targets directly. The direct fetch path:
 4. Merges useful lines back into the prospect fixture shape.
 
 This keeps the output useful when a live crawl is thin.
+
+## Routing And Evidence Step By Step
+
+Routing is deterministic and lives in `lib/router/route-prospect.ts`.
+
+1. Jackbox combines the URL, buyer pain, and any loaded fixture text.
+2. It scores the text against keyword sets for each template.
+3. It picks the highest-scoring template.
+4. If nothing matches, it defaults to Account Research.
+5. It chooses up to five same-origin crawl targets with `selectCrawlTargets()`.
+
+Evidence ranking lives in `lib/generation/evidence.ts`.
+
+1. Pages are split into normalized lines and sentence-sized segments.
+2. Low-value signals such as cookie banners, nav text, login prompts, and footer copy are rejected.
+3. Remaining lines are scored for template fit, specificity, source context, and pain-point overlap.
+4. Results are deduped and diversified across page types and URLs.
+5. Fallback evidence uses the first meaningful source lines when ranking is sparse.
+
+## Template Generation Step By Step
+
+Template orchestration lives in `lib/generation/templates/`. The curated template
+source lives in `templates/`.
+
+1. Docs Intelligence builds source-linked questions and answers from docs-like evidence.
+2. Change Monitor builds tracked page summaries and alert-ready monitoring copy.
+3. Account Research builds executive summary, discovery angles, and account signals.
+
+Each template returns:
+
+1. A template-specific `preview` object.
+2. Exportable `files` with paths, descriptions, media types, and content.
+
+The templates are curated assets. The LLM can improve wording in the story and
+solution brief, but it does not invent arbitrary app structures.
 
 ## Output Screen Step By Step
 
@@ -141,6 +247,22 @@ route and Remotion files live in:
 
 This is separate from the main two-screen product flow. The demo room remains the
 primary sales artifact.
+
+## Environment Variables
+
+| Variable | Default | Used by | Purpose |
+| --- | --- | --- | --- |
+| `JACKBOX_FIRECRAWL_MODE` | `auto` | `lib/firecrawl/mode.ts` | Chooses `auto`, `fixture`, or `live` data loading. |
+| `FIRECRAWL_API_KEY` | unset | `lib/firecrawl/client.ts` | Enables live Firecrawl crawling. |
+| `FIRECRAWL_CRAWL_TIMEOUT_MS` | `20000` | Firecrawl client | Bounds live crawl polling. |
+| `JACKBOX_GENERATION_TIMEOUT_MS` | `55000` | `/api/generate` | Bounds the full generation route. |
+| `GEMINI_API_KEY` | unset | `lib/llm/demo-story-enhancer.ts` | Enables optional Gemini enhancement outside tests. |
+| `GEMINI_MODEL` | `gemini-3-flash-preview` | Gemini enhancer | Selects the Gemini model. |
+| `GEMINI_TIMEOUT_MS` | `8000` | Gemini enhancer | Bounds each Gemini enhancement call. |
+| `JACKBOX_PIPELINE_LOGS` | enabled outside tests | `lib/observability/pipeline-log.ts` | Set to `0` to silence pipeline logs. |
+
+Playwright clears `GEMINI_API_KEY` for its web server so e2e tests stay
+deterministic.
 
 ## Run The App Locally
 
@@ -259,6 +381,20 @@ npm run test:e2e
 | `npm run test:run` | Runs the Vitest unit and integration suite once. |
 | `npm run test:e2e` | Runs the Playwright browser flow in fixture mode. |
 
+## Test Map
+
+| Area | Tests |
+| --- | --- |
+| Contracts and validation | `tests/unit/contracts.test.ts`, `tests/unit/prospect-form.test.tsx` |
+| Routing and estimates | `tests/unit/router.test.ts`, `tests/unit/estimate-credits.test.ts` |
+| Firecrawl and fallback loading | `tests/integration/firecrawl-adapter.test.ts`, `tests/unit/direct-fetch.test.ts` |
+| Evidence ranking | `tests/unit/evidence.test.ts` |
+| Gemini parsing/fallback | `tests/unit/demo-story-enhancer.test.ts` |
+| Generation route | `tests/integration/generate-route.test.ts` |
+| Template slices | `tests/integration/docs-intelligence.test.ts`, `tests/integration/change-monitor.test.ts`, `tests/integration/account-research.test.ts` |
+| Export route and preview rendering | `tests/integration/export-route.test.ts`, `tests/integration/demo-preview.test.tsx` |
+| Browser happy path | `e2e/founder-flow.spec.ts` |
+
 ## Project Map
 
 | Path | Purpose |
@@ -277,6 +413,44 @@ npm run test:e2e
 | `remotion/` | Remotion composition and rendering entry points. |
 | `tests/` | Unit and integration tests. |
 | `e2e/` | Playwright browser test. |
+
+## How To Extend The Codebase
+
+### Add Or Change A Template
+
+1. Update `TemplateIdSchema` in `lib/validation/prospect.ts` if adding a new template.
+2. Add route keywords and routing reasons in `lib/router/route-prospect.ts`.
+3. Add crawl target preferences in `lib/router/select-crawl-targets.ts`.
+4. Add credit assumptions in `lib/estimates/estimate-credits.ts`.
+5. Add template preview and file builders under `templates/<template-id>/`.
+6. Add orchestration under `lib/generation/templates/`.
+7. Wire it into `generateDemoPackage()`.
+8. Add fixture, integration, and browser coverage before relying on it in demos.
+
+### Add A Fixture
+
+1. Create `docs/fixtures/<fixture-id>.json`.
+2. Match the JSON shape documented in `docs/fixtures/README.md`.
+3. Include only public content that Jackbox is allowed to use.
+4. Add the seeded scenario to `docs/fixtures/seeded-scenarios.json` if it should be demoable.
+5. Add or update tests that assert the expected template route.
+
+### Add A UI Surface
+
+1. Read from `DemoPackage` instead of calling generation helpers in the component.
+2. Keep the input and output screens separate.
+3. Keep provenance visible when generated copy makes a claim.
+4. Keep export and video routes server-side.
+
+## Operational Boundaries
+
+1. Jackbox only works with public website content in V1.
+2. Live crawls are bounded to approved same-origin public paths.
+3. Fixture mode is the preferred path for demos and tests.
+4. Strict live mode requires `FIRECRAWL_API_KEY`; automatic mode can fall back.
+5. Optional Gemini enhancement must stay grounded in ranked public surfaces.
+6. Generated demo packages are sales artifacts, not production customer apps.
+7. No prospect data is persisted by the app by default.
 
 ## Current Status
 
